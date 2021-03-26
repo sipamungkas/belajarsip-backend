@@ -1,0 +1,40 @@
+{
+  "name": "belajarsip-backend",
+  "version": "1.0.0",
+  "description": "Belajarsip backend is a part of belajarsip platform",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sipamungkas/belajarsip-backend.git"
+  },
+  "keywords": [
+    "belajarsip",
+    "node",
+    "js",
+    "express",
+    "js",
+    "platform"
+  ],
+  "author": "Ragil Burhanudin Pamungkas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sipamungkas/belajarsip-backend/issues"
+  },
+  "homepage": "https://github.com/sipamungkas/belajarsip-backend#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "eslint": "7.22.0",
+    "eslint-config-prettier": "^8.1.0",
+    "nodemon": "2.0.7",
+    "prettier": "2.2.1"
+  }
+}
