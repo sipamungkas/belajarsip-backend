@@ -1,6 +1,10 @@
 const { sendError, sendResponse } = require("../helpers/response");
 const { isEmailExists } = require("../models/users");
-const { updateResetToken, checkToken } = require("../models/reset");
+const {
+  updateResetToken,
+  checkToken,
+  newPassword,
+} = require("../models/reset");
 const crypto = require("crypto");
 
 const sendOTP = async (req, res) => {
@@ -58,7 +62,26 @@ const otpVerification = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-  } catch (error) {}
+    const {
+      reset_token,
+      otp,
+      password,
+      confirm_password: confirmPassword,
+    } = req.body;
+    if (password !== confirmPassword) {
+      return sendResponse(res, false, 422, "Password doesn't match");
+    }
+
+    const isUpdated = await newPassword(reset_token, otp, password);
+    console.log(isUpdated);
+    if (isUpdated) {
+      return sendResponse(res, true, 200, "Password updated");
+    }
+
+    return sendResponse(res, false, 200, "Failed to update the password");
+  } catch (error) {
+    return sendError(res, 500);
+  }
 };
 
-module.exports = { sendOTP, otpVerification };
+module.exports = { sendOTP, otpVerification, changePassword };

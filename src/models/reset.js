@@ -37,4 +37,22 @@ const checkToken = (reset_token, otp) => {
   });
 };
 
-module.exports = { updateResetToken, checkToken };
+const newPassword = (reset_token, otp, password) => {
+  return new Promise((resolve, reject) => {
+    const updatePasswordQuery =
+      "UPDATE users set password = ?,reset_token = null, otp = null where reset_token = ? and otp = ?";
+    db.query(
+      updatePasswordQuery,
+      [password, reset_token, otp],
+      (error, results) => {
+        if (error) return reject(error);
+        if (results.affectedRows > 0) {
+          return resolve(true);
+        }
+        return resolve(false);
+      }
+    );
+  });
+};
+
+module.exports = { updateResetToken, checkToken, newPassword };
