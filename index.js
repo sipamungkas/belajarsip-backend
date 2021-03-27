@@ -11,15 +11,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(Router);
 
-// const db = mysql.createConnection({
-//   host: process.env.DB_HOST || "localhost",
-//   user: process.env.DB_USERNAME || "root",
-//   password: process.env.DB_PASSWORD || "",
-//   database: process.env.DB_NAME || "belajarsip",
-// });
-
-// db.connect();
-
 // router.post("/auth", (req, res) => {
 //   const { username, password } = req.body;
 //   const sqlQuery =

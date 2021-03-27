@@ -1,7 +1,8 @@
 const Router = require("express").Router();
 
-const { userAuthentication } = require("../handlers/users");
+const { userAuthentication, createNewStudent } = require("../handlers/users");
 
 Router.post("/auth", userAuthentication);
+Router.post("/", createNewStudent);
 
 module.exports = Router;
