@@ -3,12 +3,14 @@ const { sendError, sendResponse } = require("../helpers/response");
 
 const getCourses = async (req, res) => {
   try {
-    const { search, category, level } = req.query;
+    const { search, category, level, price } = req.query;
+    console.log(req.query);
     const searchValue = `%${search}%`;
     const courses = await coursesWithLevelAndCategory(
       searchValue,
       category,
-      level
+      level,
+      price
     );
     return sendResponse(res, true, 200, "List of Available Courses", courses);
   } catch (error) {
