@@ -67,7 +67,6 @@ const isRegisteredToCourse = (courseId, userId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
       "SELECT registered_at FROM user_course where course_id = ? and user_id = ? limit 1";
-    console.log(sqlQuery);
     db.query(sqlQuery, [courseId, userId], (error, results) => {
       if (error) return reject(error);
 
