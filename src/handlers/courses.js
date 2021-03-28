@@ -1,6 +1,8 @@
 const {
   coursesWithLevelAndCategory,
   findCourseById,
+  registerToCourseId,
+  isRegisteredToCourse,
 } = require("../models/courses");
 const { sendError, sendResponse } = require("../helpers/response");
 
@@ -23,7 +25,7 @@ const getCourses = async (req, res) => {
 
 const getCourseById = async (req, res) => {
   try {
-    const { id: courseId } = req.params;
+    const { courseId } = req.params;
     const course = await findCourseById(courseId);
     if (course) {
       return sendResponse(res, true, 200, "Course detail", course);
@@ -36,4 +38,30 @@ const getCourseById = async (req, res) => {
   }
 };
 
-module.exports = { getCourses, getCourseById };
+const registerCourseById = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { user_id: userId } = req.body;
+    const isRegistered = await isRegisteredToCourse(courseId, userId);
+    console.log(isRegistered, userId, courseId);
+    if (isRegistered) {
+      return sendResponse(
+        res,
+        true,
+        200,
+        "You are already registered to this course"
+      );
+    }
+    const registerStatus = await registerToCourseId(courseId, userId);
+    if (registerStatus) {
+      return sendResponse(res, true, 201, "course registration success");
+    }
+
+    return sendResponse(res, false, 200, "course registration failed");
+  } catch (error) {
+    console.log(error);
+    return sendError(res, 500);
+  }
+};
+
+module.exports = { getCourses, getCourseById, registerCourseById };

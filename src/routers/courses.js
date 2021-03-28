@@ -1,8 +1,12 @@
-const { getCourses, getCourseById } = require("../handlers/courses");
+const {
+  getCourses,
+  getCourseById,
+  registerCourseById,
+} = require("../handlers/courses");
 
 const Router = require("express").Router();
 
 Router.get("/", getCourses);
-Router.get("/:id", getCourseById);
-
+Router.get("/:courseId", getCourseById);
+Router.post("/:courseId", registerCourseById);
 module.exports = Router;
