@@ -7,7 +7,11 @@ const {
   subCourses,
   isCourseOwner,
   courseMember,
-  memberSubcourseScore,
+  isScored,
+  createScore,
+  isSubcourse,
+  updateScore,
+  deleteScore,
 } = require("../models/courses");
 const { sendError, sendResponse } = require("../helpers/response");
 const {
@@ -178,6 +182,66 @@ const getMemberSubcourse = async (req, res) => {
   }
 };
 
+const createMemberScore = async (req, res) => {
+  try {
+    const { subcourse_id: subcourseId, member_id: memberId, score } = req.body;
+    const subcourseExists = isSubcourse(subcourseId);
+    if (!subcourseExists) {
+      return sendResponse(res, false, 404, "Subcourse not found!");
+    }
+    const isMemberScored = await isScored(subcourseId, memberId);
+    if (isMemberScored) {
+      return sendResponse(res, true, 200, "Member already have score");
+    }
+    await createScore(subcourseId, memberId, score);
+    return sendResponse(
+      res,
+      true,
+      201,
+      "Create new score for member successfully"
+    );
+  } catch (error) {
+    console.log(error);
+    return sendError(500, error);
+  }
+};
+
+const updateMemberScore = async (req, res) => {
+  try {
+    const { memberId } = req.params;
+    const { subcourse_id: subcourseId, score } = req.body;
+    const subcourseExists = isSubcourse(subcourseId);
+    if (!subcourseExists) {
+      return sendResponse(res, false, 404, "Subcourse not found!");
+    }
+    const isMemberScored = await isScored(subcourseId, memberId);
+    if (!isMemberScored) {
+      return sendResponse(
+        res,
+        true,
+        404,
+        "Member don't have score yet, please create new score!"
+      );
+    }
+    await updateScore(subcourseId, memberId, score);
+    return sendResponse(res, true, 201, "Update score for member successfully");
+  } catch (error) {
+    console.log(error);
+    return sendError(500, error);
+  }
+};
+
+const deleteMemberScore = async (req, res) => {
+  try {
+    const { memberId, subcourseId } = req.params;
+    await deleteScore(subcourseId, memberId);
+    return sendResponse(res, true, 204, "Delete score for member successfully");
+  } catch (error) {
+    console.log(error);
+    return sendError(500, error);
+  }
+};
+
 module.exports = {
   getCourses,
   getCourseById,
@@ -185,4 +249,7 @@ module.exports = {
   getSubcourses,
   getCourseMember,
   getMemberSubcourse,
+  createMemberScore,
+  updateMemberScore,
+  deleteMemberScore,
 };

@@ -137,12 +137,6 @@ const courseMember = (courseId) => {
   });
 };
 
-const memberSubcourse = (courseId) => {
-  return new Promise((resolve, reject) => {
-    const sqlQuery = "SELECT * FROM subcourse where id = ?";
-  });
-};
-
 const memberSubcourseScore = (courseId, userId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
@@ -158,6 +152,67 @@ const memberSubcourseScore = (courseId, userId) => {
   });
 };
 
+const isScored = (subcourseId, memberId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery =
+      "SELECT score from user_subcourse where subcourse_id = ? and user_id = ?";
+    db.query(sqlQuery, [subcourseId, memberId], (error, results) => {
+      if (error) return reject(error);
+      if (results.length > 0) {
+        return resolve(true);
+      }
+      return resolve(false);
+    });
+  });
+};
+
+const createScore = (subcourseId, memberId, score) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery =
+      "INSERT INTO user_subcourse(subcourse_id,user_id,score) values (?,?,?)";
+    db.query(sqlQuery, [subcourseId, memberId, score], (error, results) => {
+      if (error) return reject(error);
+      return resolve(results);
+    });
+  });
+};
+
+const updateScore = (subcourseId, memberId, score) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery =
+      "UPDATE user_subcourse SET score = ? WHERE  subcourse_id = ? and user_id = ?";
+    db.query(sqlQuery, [score, subcourseId, memberId], (error, results) => {
+      if (error) return reject(error);
+      if (results.affectedRows > 0) {
+        return resolve(true);
+      }
+      return resolve(false);
+    });
+  });
+};
+
+const deleteScore = (subcourseId, memberId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery =
+      "DELETE FROM user_subcourse where subcourse_id = ? and user_id = ?";
+    db.query(sqlQuery, [subcourseId, memberId], (error, results) => {
+      if (error) return reject(error);
+      return resolve(true);
+    });
+  });
+};
+
+const isSubcourse = (subcourseId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = "SELECT id FROM subcourses where id = ?";
+    db.query(sqlQuery, [subcourseId], (error, results) => {
+      if (error) return reject(error);
+      if (results.length > 0) return resolve(true);
+      return resolve(false);
+    });
+  });
+};
+
 module.exports = {
   coursesWithLevelAndCategory,
   findCourseById,
@@ -168,4 +223,9 @@ module.exports = {
   isCourseOwner,
   courseMember,
   memberSubcourseScore,
+  isScored,
+  createScore,
+  updateScore,
+  isSubcourse,
+  deleteScore,
 };
