@@ -79,7 +79,7 @@ const isRegisteredToCourse = (courseId, userId) => {
   });
 };
 
-const subCoursesWithoutScore = (courseId) => {
+const subCourses = (courseId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery = "SELECT * FROM subcourses where course_id = ? ";
     db.query(sqlQuery, [courseId], (error, results) => {
@@ -92,10 +92,10 @@ const subCoursesWithoutScore = (courseId) => {
   });
 };
 
-const subCoursesWithScore = (courseId, userId) => {
+const userSubCoursesScore = (courseId, userId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
-      "SELECT sc.*,us.* FROM subcourses sc " +
+      "SELECT sc.id as id,us.score as score FROM subcourses sc " +
       "LEFT JOIN user_subcourse us on sc.id = us.subcourse_id " +
       "WHERE sc.course_id = ? and us.user_id = ?";
     db.query(sqlQuery, [courseId, userId], (error, results) => {
@@ -137,13 +137,35 @@ const courseMember = (courseId) => {
   });
 };
 
+const memberSubcourse = (courseId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = "SELECT * FROM subcourse where id = ?";
+  });
+};
+
+const memberSubcourseScore = (courseId, userId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery =
+      "SELECT * FROM subcourses s LEFT JOIN user_subcourse us ON s.id = us.subcourse_id " +
+      "where s.course_id = ? and us.user_id = ?";
+    db.query(sqlQuery, [courseId, userId], (error, results) => {
+      if (error) return reject(error);
+      if (results.length > 0) {
+        return resolve(results);
+      }
+      return resolve(false);
+    });
+  });
+};
+
 module.exports = {
   coursesWithLevelAndCategory,
   findCourseById,
   registerToCourseId,
   isRegisteredToCourse,
-  subCoursesWithoutScore,
-  subCoursesWithScore,
+  subCourses,
+  userSubCoursesScore,
   isCourseOwner,
   courseMember,
+  memberSubcourseScore,
 };
