@@ -108,6 +108,35 @@ const subCoursesWithScore = (courseId, userId) => {
   });
 };
 
+const isCourseOwner = (courseId, userId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = "SELECT user_id FROM courses where id = ? and user_id = ?";
+    db.query(sqlQuery, [courseId, userId], (error, results) => {
+      if (error) return reject(error);
+      if (results.length > 0) {
+        return resolve(true);
+      }
+      return resolve(false);
+    });
+  });
+};
+
+const courseMember = (courseId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery =
+      "SELECT u.id as userId, u.name FROM user_course uc " +
+      "LEFT JOIN users u ON uc.user_id = u.id " +
+      "WHERE uc.course_id = ?";
+    db.query(sqlQuery, [courseId], (error, results) => {
+      if (error) return reject(error);
+      if (results.length > 0) {
+        return resolve(results);
+      }
+      return resolve(false);
+    });
+  });
+};
+
 module.exports = {
   coursesWithLevelAndCategory,
   findCourseById,
@@ -115,4 +144,6 @@ module.exports = {
   isRegisteredToCourse,
   subCoursesWithoutScore,
   subCoursesWithScore,
+  isCourseOwner,
+  courseMember,
 };

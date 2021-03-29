@@ -5,8 +5,11 @@ const {
   isRegisteredToCourse,
   subCoursesWithScore,
   subCoursesWithoutScore,
+  isCourseOwner,
+  courseMember,
 } = require("../models/courses");
 const { sendError, sendResponse } = require("../helpers/response");
+const { formatMembers } = require("../helpers/coursesFormatter");
 
 const getCourses = async (req, res) => {
   try {
@@ -94,9 +97,37 @@ const getSubcourses = async (req, res) => {
   }
 };
 
+const getCourseMember = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { user_id: userId } = req.body;
+    const isOwner = await isCourseOwner(courseId, userId);
+    if (!isOwner) {
+      return sendResponse(res, false, 401, "Unauthorized access");
+    }
+    const members = await courseMember(courseId);
+
+    if (members) {
+      return sendResponse(
+        res,
+        true,
+        200,
+        "List of registered members",
+        formatMembers(members)
+      );
+    }
+
+    return sendResponse(res, false, 404, "Members not found");
+  } catch (error) {
+    console.log(error);
+    return sendError(res, 500);
+  }
+};
+
 module.exports = {
   getCourses,
   getCourseById,
   registerCourseById,
   getSubcourses,
+  getCourseMember,
 };

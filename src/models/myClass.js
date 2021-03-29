@@ -18,7 +18,7 @@ const myClassWithLimit = (userId, limit, categoryId, searchValue) => {
     left join courses c on uc.course_id = c.id 
     left join categories cat on c.category_id = cat.id 
     left join subcourses sc on uc.course_id = sc.course_id 
-    left join user_subcourse us on sc.id = us.user_course_section_id 
+    left join user_subcourse us on sc.id = us.subcourse_id
     where uc.user_id = ? ${searchValue ? searchQuery : ""} ${
       categoryId ? categoryQuery : ""
     }
