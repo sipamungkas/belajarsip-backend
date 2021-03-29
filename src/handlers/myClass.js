@@ -2,7 +2,7 @@ const { myClassWithLimit, countSubCourses } = require("../models/myClass");
 const { sendResponse, sendError } = require("../helpers/response");
 const { formatMyCourses } = require("../helpers/myClassFormatter");
 
-const myClassWithLimit = async (req, res) => {
+const getMyClassWithLimit = async (req, res) => {
   try {
     const { user_id: userId } = req.body;
     const { limit, search, category_id: categoryId } = req.query;
@@ -31,4 +31,4 @@ const myClassWithLimit = async (req, res) => {
   }
 };
 
-module.exports = { myClassWithLimit };
+module.exports = { getMyClassWithLimit };

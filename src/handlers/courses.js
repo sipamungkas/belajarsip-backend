@@ -3,6 +3,8 @@ const {
   findCourseById,
   registerToCourseId,
   isRegisteredToCourse,
+  subCoursesWithScore,
+  subCoursesWithoutScore,
 } = require("../models/courses");
 const { sendError, sendResponse } = require("../helpers/response");
 
@@ -43,7 +45,6 @@ const registerCourseById = async (req, res) => {
     const { courseId } = req.params;
     const { user_id: userId } = req.body;
     const isRegistered = await isRegisteredToCourse(courseId, userId);
-    console.log(isRegistered, userId, courseId);
     if (isRegistered) {
       return sendResponse(
         res,
@@ -64,4 +65,38 @@ const registerCourseById = async (req, res) => {
   }
 };
 
-module.exports = { getCourses, getCourseById, registerCourseById };
+const getSubcourses = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { user_id: userId } = req.body;
+
+    if (!courseId || !userId) {
+      return sendResponse(res, false, 422, "Unprocessable entity!");
+    }
+
+    const isRegistered = await isRegisteredToCourse(courseId, userId);
+
+    let subcourses = false;
+    if (isRegistered) {
+      subcourses = await subCoursesWithScore(courseId, userId);
+    } else {
+      subcourses = await subCoursesWithoutScore(courseId);
+    }
+    console.log(isRegistered, courseId, userId, subcourses);
+    if (subcourses) {
+      return sendResponse(res, true, 200, "List of Subcourses", subcourses);
+    }
+
+    return sendResponse(res, false, 404, "Subcourses not found");
+  } catch (error) {
+    console.log(error);
+    return sendError(rs, error);
+  }
+};
+
+module.exports = {
+  getCourses,
+  getCourseById,
+  registerCourseById,
+  getSubcourses,
+};
