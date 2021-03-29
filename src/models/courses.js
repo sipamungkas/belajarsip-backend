@@ -1,4 +1,5 @@
 const db = require("../database/dbMySql");
+const mysql = require("mysql");
 
 const coursesWithLevelAndCategory = (
   searchValue,
@@ -29,6 +30,23 @@ const coursesWithLevelAndCategory = (
         return resolve(results);
       }
     );
+  });
+};
+
+const coursesWithSort = (searchValue, sortBy, order) => {
+  return new Promise((resolve, reject) => {
+    const sortByQuery = "ORDER BY ? ?";
+    const sqlQuery =
+      "SELECT c.*, l.name as level, cat.name as category FROM courses c left join course_levels l on c.level_id = l.id" +
+      ` left join categories cat on c.category_id = cat.id where c.name like ? ${
+        sortBy && order ? sortByQuery : ""
+      }`;
+
+    db.query(sqlQuery, [searchValue, sortBy, order], (error, results) => {
+      if (error) return reject(error);
+
+      return resolve(results);
+    });
   });
 };
 
@@ -215,6 +233,7 @@ const isSubcourse = (subcourseId) => {
 
 module.exports = {
   coursesWithLevelAndCategory,
+  coursesWithSort,
   findCourseById,
   registerToCourseId,
   isRegisteredToCourse,

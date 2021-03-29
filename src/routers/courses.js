@@ -8,11 +8,12 @@ const {
   createMemberScore,
   updateMemberScore,
   deleteMemberScore,
+  getCoursesWithSort,
 } = require("../handlers/courses");
 
 const Router = require("express").Router();
 
-Router.get("/", getCourses);
+Router.get("/", getCoursesWithSort);
 Router.get("/:courseId", getCourseById);
 Router.post("/:courseId", registerCourseById);
 Router.get("/:courseId/subcourses", getSubcourses);

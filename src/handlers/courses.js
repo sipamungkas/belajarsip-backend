@@ -1,5 +1,6 @@
 const {
   coursesWithLevelAndCategory,
+  coursesWithSort,
   findCourseById,
   registerToCourseId,
   isRegisteredToCourse,
@@ -19,6 +20,8 @@ const {
   formatSubcourses,
 } = require("../helpers/coursesFormatter");
 
+const mysql = require("mysql");
+
 const getCourses = async (req, res) => {
   try {
     const { search, category, level, price } = req.query;
@@ -29,6 +32,46 @@ const getCourses = async (req, res) => {
       level,
       price
     );
+    return sendResponse(res, true, 200, "List of Available Courses", courses);
+  } catch (error) {
+    console.log(error);
+    return sendError(res, 500);
+  }
+};
+
+const getCoursesWithSort = async (req, res) => {
+  try {
+    const { search, sort } = req.query;
+
+    const sortValue = sort?.split("-") || null;
+    let sortBy = null;
+    let order = null;
+    console.log(sortValue, sortBy, order);
+
+    if (sortValue) {
+      switch (sortValue[0].toLowerCase()) {
+        case "category":
+          sortBy = mysql.raw("c.category_id");
+          break;
+        case "level":
+          sortBy = mysql.raw("c.level_id");
+          break;
+        case "price":
+          sortBy = mysql.raw("c.price");
+          break;
+        default:
+          sortBy = null;
+          break;
+      }
+
+      order =
+        sortValue[1].toLowerCase() === "az"
+          ? mysql.raw("ASC")
+          : mysql.raw("DESC");
+    }
+    // console.log(sortValue, sortBy.toSqlString(), order.toSqlString());
+    const searchValue = `%${search}%`;
+    const courses = await coursesWithSort(searchValue, sortBy, order);
     return sendResponse(res, true, 200, "List of Available Courses", courses);
   } catch (error) {
     console.log(error);
@@ -244,6 +287,7 @@ const deleteMemberScore = async (req, res) => {
 
 module.exports = {
   getCourses,
+  getCoursesWithSort,
   getCourseById,
   registerCourseById,
   getSubcourses,
