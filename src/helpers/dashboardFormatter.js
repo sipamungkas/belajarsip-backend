@@ -15,4 +15,17 @@ const formatTasks = (tasks) => {
   return tasks.map((task) => formatTask(task));
 };
 
-module.exports = { formatTasks };
+const formatInstructorTask = (task) => {
+  return {
+    title: task.title,
+    start_at: task.session_start,
+    end_at: task.session_end,
+    student: task?.student || 0,
+  };
+};
+
+const formatInstructorTasks = (tasks) => {
+  return tasks.map((task) => formatInstructorTask(task));
+};
+
+module.exports = { formatTasks, formatInstructorTasks };

@@ -5,7 +5,10 @@ const {
   getSubcoursesByDateInstructor,
 } = require("../models/dashboard");
 const { sendError, sendResponse } = require("../helpers/response");
-const { formatTasks } = require("../helpers/dashboardFormatter");
+const {
+  formatTasks,
+  formatInstructorTasks,
+} = require("../helpers/dashboardFormatter");
 
 const addNewTask = async (req, res) => {
   try {
@@ -57,7 +60,13 @@ const getInstructorSchedule = async (req, res) => {
     const todayTasks = await getSubcoursesByDateInstructor(date, userId);
     console.log(todayTasks);
     if (!todayTasks) return sendResponse(res, false, 404, "Not found");
-    return sendResponse(res, true, 200, "List of today task", todayTasks);
+    return sendResponse(
+      res,
+      true,
+      200,
+      "List of today task",
+      formatInstructorTasks(todayTasks)
+    );
   } catch (error) {
     console.log(error);
     return sendError(res, 500);

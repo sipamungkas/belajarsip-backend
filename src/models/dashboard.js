@@ -48,7 +48,7 @@ const getSubcoursesByDateInstructor = (date, userId) => {
       "SELECT c.name, c.id as course_id, s.title, c.session_start, c.session_end, c.user_id," +
       "(SELECT COUNT(uc.user_id) from user_course uc where uc.course_id = c.id) as student" +
       " FROM courses c LEFT JOIN subcourses s on c.id = s.course_id " +
-      "where s.date = ? and c.user_id = ? ";
+      "where s.date = ? and c.user_id = ? ORDER BY c.session_start ASC";
     db.query(sqlQuery, [date, userId], (error, results) => {
       if (error) return reject(error);
       if (results.length > 0) {
