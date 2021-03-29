@@ -13,6 +13,7 @@ const {
   isSubcourse,
   updateScore,
   deleteScore,
+  registeredCourses,
 } = require("../models/courses");
 const { sendError, sendResponse } = require("../helpers/response");
 const {
@@ -42,7 +43,7 @@ const getCourses = async (req, res) => {
 const getCoursesWithSort = async (req, res) => {
   try {
     const { search, sort } = req.query;
-
+    const { user_id: userId } = req.headers;
     const sortValue = sort?.split("-") || null;
     let sortBy = null;
     let order = null;
@@ -72,7 +73,20 @@ const getCoursesWithSort = async (req, res) => {
     // console.log(sortValue, sortBy.toSqlString(), order.toSqlString());
     const searchValue = `%${search}%`;
     const courses = await coursesWithSort(searchValue, sortBy, order);
-    return sendResponse(res, true, 200, "List of Available Courses", courses);
+    const registeredCourseList = await registeredCourses(userId);
+    const availableCourses = courses.filter(
+      (course) =>
+        !registeredCourseList.filter(
+          (registered) => registered.id === course.id
+        ).length
+    );
+    return sendResponse(
+      res,
+      true,
+      200,
+      "List of Available Courses",
+      availableCourses
+    );
   } catch (error) {
     console.log(error);
     return sendError(res, 500);

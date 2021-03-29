@@ -231,6 +231,17 @@ const isSubcourse = (subcourseId) => {
   });
 };
 
+const registeredCourses = (userId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery =
+      "SELECT user_id,course_id as id from user_course where user_id = ?";
+    db.query(sqlQuery, [userId], (error, results) => {
+      if (error) return reject(error);
+      return resolve(results);
+    });
+  });
+};
+
 module.exports = {
   coursesWithLevelAndCategory,
   coursesWithSort,
@@ -247,4 +258,5 @@ module.exports = {
   updateScore,
   isSubcourse,
   deleteScore,
+  registeredCourses,
 };
