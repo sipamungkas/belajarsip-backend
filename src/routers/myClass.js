@@ -1,6 +1,9 @@
 const Router = require("express").Router();
-const { getMyClassWithLimit } = require("../handlers/myClass");
+const {
+  getMyClassWithLimit,
+  getMyClassWithLimitAndSort,
+} = require("../handlers/myClass");
 
-Router.get("/", getMyClassWithLimit);
+Router.get("/", getMyClassWithLimitAndSort);
 
 module.exports = Router;
