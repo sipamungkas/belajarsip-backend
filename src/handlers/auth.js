@@ -40,28 +40,10 @@ const userAuthentication = async (req, res) => {
       email: user.email,
       role_id: user.role_id,
     };
-    const token = await jwt.sign(data, jwtSecret, {
+    const token = jwt.sign(data, jwtSecret, {
       expiresIn: "24h",
     });
     return sendResponse(res, true, 200, { token });
-    // authentication(username, password)
-    //   .then((results) => {
-    //     if (results.length === 0) {
-    //       return sendResponse(res, false, 401, "invalid credentials");
-    //     }
-
-    //     if (results[0].password === password) {
-    //       console.log(results[0]);
-    //       const formattedUser = formatUserAuthentication(results[0]);
-    //       return sendResponse(res, null, 200, formattedUser);
-    //     }
-
-    //     return sendResponse(res, false, 401, "invalid credentials");
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //     res.json(new Error(err));
-    //   });
   } catch (error) {
     console.log(error);
     return sendError(res, error);
