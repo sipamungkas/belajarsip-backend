@@ -56,7 +56,8 @@ const getSchedule = async (req, res) => {
 
 const getInstructorSchedule = async (req, res) => {
   try {
-    const { date, user_id: userId } = req.body;
+    // const { date, user_id: userId } = req.body;
+    const { date, userId } = req.params;
     const todayTasks = await getSubcoursesByDateInstructor(date, userId);
     console.log(todayTasks);
     if (!todayTasks) return sendResponse(res, false, 404, "Not found");

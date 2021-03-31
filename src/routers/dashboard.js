@@ -7,6 +7,7 @@ const {
 
 Router.post("/", addNewTask);
 Router.get("/", getSchedule);
-Router.get("/instructor", getInstructorSchedule);
+// Router.get("/instructor", getInstructorSchedule);
+Router.get("/instructor/:userId/:date", getInstructorSchedule);
 
 module.exports = Router;

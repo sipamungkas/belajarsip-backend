@@ -1,9 +1,9 @@
 const Router = require("express").Router();
 const {
-  getMyClassWithLimit,
+  // getMyClassWithLimit,
   getMyClassWithLimitAndSort,
 } = require("../handlers/myClass");
 
-Router.get("/", getMyClassWithLimitAndSort);
+Router.get("/:userId", getMyClassWithLimitAndSort);
 
 module.exports = Router;

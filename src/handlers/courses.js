@@ -141,7 +141,7 @@ const getSubcourses = async (req, res) => {
     if (!courseId || !userId) {
       return sendResponse(res, false, 422, "Unprocessable entity!");
     }
-
+    let userScore;
     let subcourses = await subCourses(courseId);
     if (subcourses) {
       const isRegistered = await isRegisteredToCourse(courseId, userId);
@@ -166,7 +166,7 @@ const getSubcourses = async (req, res) => {
     return sendResponse(res, false, 404, "Subcourses not found");
   } catch (error) {
     console.log(error);
-    return sendError(rs, error);
+    return sendError(res, error);
   }
 };
 
@@ -205,7 +205,7 @@ const getMemberSubcourse = async (req, res) => {
     if (!isOwner) {
       return sendResponse(res, false, 401, "Unauthorized access");
     }
-
+    let userScore;
     let subcourses = await subCourses(courseId);
     if (subcourses) {
       userScore = await userSubCoursesScore(courseId, memberId);
@@ -230,8 +230,8 @@ const getMemberSubcourse = async (req, res) => {
       res,
       true,
       200,
-      "List of subcourse from member",
-      memberSubcourse
+      "List of subcourse from member"
+      // memberSubcourse
     );
   } catch (error) {
     console.log(error);

@@ -37,7 +37,8 @@ const getMyClassWithLimit = async (req, res) => {
 
 const getMyClassWithLimitAndSort = async (req, res) => {
   try {
-    const { user_id: userId } = req.body;
+    // const { user_id: userId } = req.body;
+    const { userId } = req.params;
     const { limit, search, sort } = req.query;
     const sanitizedLimit =
       typeof parseInt(limit) === "number" && parseInt(limit) > 0
@@ -71,7 +72,7 @@ const getMyClassWithLimitAndSort = async (req, res) => {
           : mysql.raw("DESC");
     }
     // console.log(sortValue, sortBy.toSqlString(), order.toSqlString());
-    const searchValue = `%${search}%`;
+    const searchValue = `%${search || ""}%`;
     const courses = await myClassWithLimitAndSort(
       userId,
       sanitizedLimit,

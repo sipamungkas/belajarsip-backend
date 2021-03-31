@@ -1,5 +1,5 @@
 const db = require("../database/dbMySql");
-const mysql = require("mysql");
+// const mysql = require("mysql");
 
 const coursesWithLevelAndCategory = (
   searchValue,
@@ -214,6 +214,7 @@ const deleteScore = (subcourseId, memberId) => {
     const sqlQuery =
       "DELETE FROM user_subcourse where subcourse_id = ? and user_id = ?";
     db.query(sqlQuery, [subcourseId, memberId], (error, results) => {
+      console.log(results);
       if (error) return reject(error);
       return resolve(true);
     });

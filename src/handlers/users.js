@@ -5,7 +5,7 @@ const {
   createStudent,
 } = require("../models/users");
 const { formatUserAuthentication } = require("../helpers/users");
-const { writeError, sendResponse, sendError } = require("../helpers/response");
+const { sendResponse, sendError } = require("../helpers/response");
 
 const userAuthentication = (req, res) => {
   const { username, password } = req.body;
@@ -22,7 +22,7 @@ const userAuthentication = (req, res) => {
       if (results[0].password === password) {
         console.log(results[0]);
         const formattedUser = formatUserAuthentication(results[0]);
-        return sendResponse(res, null, 200, formattedUser);
+        return sendResponse(res, true, 200, "Login success", formattedUser);
       }
 
       return sendResponse(res, false, 401, "invalid credentials");
