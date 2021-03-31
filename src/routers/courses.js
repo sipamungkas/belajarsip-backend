@@ -10,10 +10,11 @@ const {
   deleteMemberScore,
   getCoursesWithSort,
 } = require("../handlers/courses");
+const { authenticateToken } = require("../middlewares/auth");
 
 const Router = require("express").Router();
 
-Router.get("/", getCoursesWithSort);
+Router.get("/", authenticateToken, getCoursesWithSort);
 Router.get("/:courseId", getCourseById);
 Router.post("/:courseId", registerCourseById);
 Router.get("/:courseId/subcourses", getSubcourses);
