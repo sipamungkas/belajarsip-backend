@@ -62,9 +62,67 @@ const createStudent = (name, username, email, password) => {
   });
 };
 
+const updateResetToken = (reset_token, reset_expired, otp, email) => {
+  return new Promise((resolve, reject) => {
+    const updateTokenQuery =
+      "UPDATE users set reset_token = ?, reset_expired = ?,otp = ? where email = ? ";
+    db.query(
+      updateTokenQuery,
+      [reset_token, reset_expired, otp, email],
+      function (error, results, fields) {
+        if (error) return reject(error);
+
+        if (results.length > 0) {
+          return resolve(true);
+        }
+
+        return resolve(false);
+      }
+    );
+  });
+};
+
+const checkToken = (reset_token, otp) => {
+  return new Promise((resolve, reject) => {
+    const checkTokenQuery =
+      "SELECT reset_expired FROM users where reset_token = ? and otp = ? limit 1";
+    db.query(checkTokenQuery, [reset_token, otp], function (error, results) {
+      console.log(reset_token, otp, results);
+      if (error) return reject(error);
+
+      if (results.length > 0) {
+        return resolve(results[0]);
+      }
+
+      return resolve(false);
+    });
+  });
+};
+
+const newPassword = (reset_token, otp, password) => {
+  return new Promise((resolve, reject) => {
+    const updatePasswordQuery =
+      "UPDATE users set password = ?,reset_token = null, otp = null where reset_token = ? and otp = ?";
+    db.query(
+      updatePasswordQuery,
+      [password, reset_token, otp],
+      (error, results) => {
+        if (error) return reject(error);
+        if (results.affectedRows > 0) {
+          return resolve(true);
+        }
+        return resolve(false);
+      }
+    );
+  });
+};
+
 module.exports = {
   authentication,
   isEmailExists,
   isUsernameExists,
   createStudent,
+  updateResetToken,
+  checkToken,
+  newPassword,
 };
