@@ -9,7 +9,7 @@ const sendResponse = (res, success, status, message, data) => {
 };
 
 const sendError = (res, err) => {
-  res.status(500).json(new Error(err));
+  res.status(500).json(err);
 };
 
 module.exports = { sendResponse, sendError };

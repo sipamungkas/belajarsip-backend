@@ -1,56 +1,78 @@
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const { formatUserAuthentication } = require("../helpers/users");
 const { sendResponse, sendError } = require("../helpers/response");
-
 const {
+  authentication,
+  isUsernameExists,
   isEmailExists,
   updateResetToken,
+  createStudent,
   checkToken,
   newPassword,
 } = require("../models/auth");
 const crypto = require("crypto");
 
-const userAuthentication = (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password)
-    return res
-      .status(422)
-      .json({ message: "username or password can not be empty" });
-  authentication(username, password)
-    .then((results) => {
-      if (results.length === 0) {
-        return sendResponse(res, false, 401, "invalid credentials");
-      }
+const jwtSecret = process.env.JWT_SECRET;
+const saltRounds = Number(process.env.SALT_ROUNDS);
 
-      if (results[0].password === password) {
-        console.log(results[0]);
-        const formattedUser = formatUserAuthentication(results[0]);
-        return sendResponse(res, null, 200, formattedUser);
-      }
+const userAuthentication = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res
+        .status(422)
+        .json({ message: "username or password can not be empty" });
+    }
+    const user = await authentication(username, password);
+    if (!user) {
+      return sendResponse(res, false, 401, "Invalid Credentials");
+    }
 
-      return sendResponse(res, false, 401, "invalid credentials");
-    })
-    .catch((err) => {
-      console.log(err);
-      res.json(new Error(err));
+    const loggedIn = await bcrypt.compare(password, user.password);
+    if (!loggedIn) {
+      return sendResponse(res, false, 401, "Invalid Credentials");
+    }
+
+    const data = {
+      user_id: user.id,
+      name: user.name,
+      email: user.email,
+      role_id: user.role_id,
+    };
+    const token = await jwt.sign(data, jwtSecret, {
+      expiresIn: "24h",
     });
+    return sendResponse(res, true, 200, { token });
+    // authentication(username, password)
+    //   .then((results) => {
+    //     if (results.length === 0) {
+    //       return sendResponse(res, false, 401, "invalid credentials");
+    //     }
+
+    //     if (results[0].password === password) {
+    //       console.log(results[0]);
+    //       const formattedUser = formatUserAuthentication(results[0]);
+    //       return sendResponse(res, null, 200, formattedUser);
+    //     }
+
+    //     return sendResponse(res, false, 401, "invalid credentials");
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //     res.json(new Error(err));
+    //   });
+  } catch (error) {
+    console.log(error);
+    return sendError(res, error);
+  }
 };
 
 const createNewStudent = async (req, res) => {
   try {
-    const {
-      name,
-      username,
-      email,
-      password,
-      confirm_password: confirmPassword,
-    } = req.body;
-
-    if (password !== confirmPassword) {
-      return sendResponse(res, false, 422, "Password doesn't match");
-    }
+    const { name, username, email, password } = req.body;
 
     const usernameExists = await isUsernameExists(username);
-    console.log(usernameExists);
     if (usernameExists) {
       return sendResponse(res, false, 422, "Username already exists");
     }
@@ -60,7 +82,15 @@ const createNewStudent = async (req, res) => {
       return sendResponse(res, false, 422, "Email already exists");
     }
 
-    await createStudent(name, username, email, password);
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const newStudent = {
+      name,
+      username,
+      email,
+      password: hashedPassword,
+    };
+
+    await createStudent(newStudent);
     return sendResponse(res, true, 201, "Account created!");
   } catch (error) {
     return sendError(res, error);

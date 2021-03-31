@@ -3,11 +3,11 @@ const db = require("../database/dbMySql");
 const authentication = (username) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
-      "SELECT u.id, u.name, u.username, u.password, r.name as role FROM users u left join roles r on u.role_id = r.id  where u.username = ? or u.email = ?";
+      "SELECT u.id, u.name, u.username, u.password, r.id as role_id,r.name as role FROM users u left join roles r on u.role_id = r.id  where u.username = ? or u.email = ?";
     // const columns = ["u.id", "u.username", "u.password", "u.name", "r.name"];
     db.query(sqlQuery, [username, username], function (error, results, fields) {
       if (error) return reject(error);
-      return resolve(results);
+      return resolve(results[0]);
     });
   });
 };
@@ -47,18 +47,13 @@ const isEmailExists = (email) => {
   });
 };
 
-const createStudent = (name, username, email, password) => {
-  console.log(name, username, email, password);
+const createStudent = (user) => {
   return new Promise((resolve, reject) => {
-    const insertQuery = `INSERT INTO users(name,username,email,password) values (?,?,?,?)`;
-    db.query(
-      insertQuery,
-      [name, username, email, password],
-      function (error, results, fields) {
-        if (error) return reject(error);
-        return resolve(results);
-      }
-    );
+    const insertQuery = `INSERT INTO users SET ?`;
+    db.query(insertQuery, user, (error, results, fields) => {
+      if (error) return reject(error);
+      return resolve(results);
+    });
   });
 };
 
@@ -69,7 +64,7 @@ const updateResetToken = (reset_token, reset_expired, otp, email) => {
     db.query(
       updateTokenQuery,
       [reset_token, reset_expired, otp, email],
-      function (error, results, fields) {
+      (error, results, fields) => {
         if (error) return reject(error);
 
         if (results.length > 0) {
