@@ -3,11 +3,11 @@ const {
   getCourseById,
   registerCourseById,
   getSubcourses,
-  getCourseMember,
-  getMemberSubcourse,
-  createMemberScore,
-  updateMemberScore,
-  deleteMemberScore,
+  getCourseStudents,
+  getStudentSubcourse,
+  createStudentScore,
+  updateStudentScore,
+  deleteStudentScore,
   getCoursesWithSort,
 } = require("../handlers/courses");
 const { authenticateToken } = require("../middlewares/auth");
@@ -18,12 +18,12 @@ Router.get("/", getCoursesWithSort);
 Router.get("/:courseId", getCourseById);
 Router.post("/:courseId", registerCourseById);
 Router.get("/:courseId/subcourses", getSubcourses);
-Router.get("/:courseId/member", getCourseMember);
-Router.get("/:courseId/member/:memberId", getMemberSubcourse);
-Router.post("/:courseId/member", createMemberScore);
-Router.patch("/:courseId/member/:memberId", updateMemberScore);
+Router.get("/:courseId/students", getCourseStudents);
+Router.get("/:courseId/students/:studentId", getStudentSubcourse);
+Router.post("/:courseId/students", createStudentScore);
+Router.patch("/:courseId/students/:studentId", updateStudentScore);
 Router.delete(
-  "/:courseId/member/:memberId/subcourses/:subcourseId",
-  deleteMemberScore
+  "/:courseId/students/:studentId/subcourses/:subcourseId",
+  deleteStudentScore
 );
 module.exports = Router;

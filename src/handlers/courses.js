@@ -7,7 +7,7 @@ const {
   userSubCoursesScore,
   subCourses,
   isCourseOwner,
-  courseMember,
+  courseStudents,
   isScored,
   createScore,
   isSubcourse,
@@ -236,7 +236,7 @@ const getSubcourses = async (req, res) => {
   }
 };
 
-const getCourseMember = async (req, res) => {
+const getCourseStudents = async (req, res) => {
   try {
     const { courseId } = req.params;
     const { user_id: userId } = req.body;
@@ -244,7 +244,7 @@ const getCourseMember = async (req, res) => {
     if (!isOwner) {
       return sendResponse(res, false, 401, "Unauthorized access");
     }
-    const members = await courseMember(courseId);
+    const members = await courseStudents(courseId);
 
     if (members) {
       return sendResponse(
@@ -263,9 +263,9 @@ const getCourseMember = async (req, res) => {
   }
 };
 
-const getMemberSubcourse = async (req, res) => {
+const getStudentSubcourse = async (req, res) => {
   try {
-    const { courseId, memberId } = req.params;
+    const { courseId, studentId } = req.params;
     const { user_id: userId } = req.body;
     const isOwner = await isCourseOwner(courseId, userId);
     if (!isOwner) {
@@ -274,7 +274,7 @@ const getMemberSubcourse = async (req, res) => {
 
     let subcourses = await subCourses(courseId);
     if (subcourses) {
-      userScore = await userSubCoursesScore(courseId, memberId);
+      userScore = await userSubCoursesScore(courseId, studentId);
 
       if (userScore) {
         subcourses = subcourses.map((data) => ({
@@ -305,18 +305,18 @@ const getMemberSubcourse = async (req, res) => {
   }
 };
 
-const createMemberScore = async (req, res) => {
+const createStudentScore = async (req, res) => {
   try {
-    const { subcourse_id: subcourseId, member_id: memberId, score } = req.body;
+    const { subcourse_id: subcourseId, member_id: studentId, score } = req.body;
     const subcourseExists = isSubcourse(subcourseId);
     if (!subcourseExists) {
       return sendResponse(res, false, 404, "Subcourse not found!");
     }
-    const isMemberScored = await isScored(subcourseId, memberId);
+    const isMemberScored = await isScored(subcourseId, studentId);
     if (isMemberScored) {
       return sendResponse(res, true, 200, "Member already have score");
     }
-    await createScore(subcourseId, memberId, score);
+    await createScore(subcourseId, studentId, score);
     return sendResponse(
       res,
       true,
@@ -329,15 +329,15 @@ const createMemberScore = async (req, res) => {
   }
 };
 
-const updateMemberScore = async (req, res) => {
+const updateStudentScore = async (req, res) => {
   try {
-    const { memberId } = req.params;
+    const { studentId } = req.params;
     const { subcourse_id: subcourseId, score } = req.body;
     const subcourseExists = isSubcourse(subcourseId);
     if (!subcourseExists) {
       return sendResponse(res, false, 404, "Subcourse not found!");
     }
-    const isMemberScored = await isScored(subcourseId, memberId);
+    const isMemberScored = await isScored(subcourseId, studentId);
     if (!isMemberScored) {
       return sendResponse(
         res,
@@ -346,7 +346,7 @@ const updateMemberScore = async (req, res) => {
         "Member don't have score yet, please create new score!"
       );
     }
-    await updateScore(subcourseId, memberId, score);
+    await updateScore(subcourseId, studentId, score);
     return sendResponse(res, true, 201, "Update score for member successfully");
   } catch (error) {
     console.log(error);
@@ -354,10 +354,10 @@ const updateMemberScore = async (req, res) => {
   }
 };
 
-const deleteMemberScore = async (req, res) => {
+const deleteStudentScore = async (req, res) => {
   try {
-    const { memberId, subcourseId } = req.params;
-    await deleteScore(subcourseId, memberId);
+    const { studentId, subcourseId } = req.params;
+    await deleteScore(subcourseId, studentId);
     return sendResponse(res, true, 204, "Delete score for member successfully");
   } catch (error) {
     console.log(error);
@@ -371,9 +371,9 @@ module.exports = {
   getCourseById,
   registerCourseById,
   getSubcourses,
-  getCourseMember,
-  getMemberSubcourse,
-  createMemberScore,
-  updateMemberScore,
-  deleteMemberScore,
+  getCourseStudents,
+  getStudentSubcourse,
+  createStudentScore,
+  updateStudentScore,
+  deleteStudentScore,
 };
