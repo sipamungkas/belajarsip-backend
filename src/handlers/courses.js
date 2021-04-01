@@ -111,10 +111,21 @@ const getCourseById = async (req, res) => {
         message = "Course detail for registered student";
       }
     } else {
-      // course owner
+      const isOwner = await isCourseOwner(courseId, user.user_id, user.role_id);
+      if (!isOwner) return sendResponse(res, false, 401, "Unauthorized access");
+      const couserInformation = await courseById(courseId);
+      const subcourses = await subCourses(courseId);
+      const subcoursesPassed = subcourses.filter(
+        (subcourse) => new Date(subcourse.date) < new Date()
+      );
+      course = {
+        ...couserInformation,
+        progress: (subcoursesPassed.length / subcourses.length) * 100,
+      };
     }
 
     return sendResponse(res, true, 200, message, course);
+
     // if (course) {
     //   return sendResponse(res, true, 200, "Course detail", course);
     // }
@@ -165,7 +176,6 @@ const getSubcourses = async (req, res) => {
       const isRegistered = await isRegisteredToCourse(courseId, userId);
       if (isRegistered) {
         userScore = await userSubCoursesScore(courseId, userId);
-        console.log(userScore);
         subcourses = subcourses.map((data) => ({
           ...data,
           ...userScore.find((score) => score.id === data.id),
@@ -227,7 +237,7 @@ const getMemberSubcourse = async (req, res) => {
     let subcourses = await subCourses(courseId);
     if (subcourses) {
       userScore = await userSubCoursesScore(courseId, memberId);
-      console.log(userScore);
+
       if (userScore) {
         subcourses = subcourses.map((data) => ({
           ...data,

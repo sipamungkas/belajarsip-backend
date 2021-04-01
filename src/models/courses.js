@@ -16,7 +16,6 @@ const coursesWithLevelAndCategory = (
     const freeQuery = " and c.price = 0";
     const paidQuery = " and c.price >= 1";
     const findByPriceQuery = price && price === "paid" ? paidQuery : freeQuery;
-    console.log(findByPriceQuery);
     const sqlQuery = `${findAllQuery} ${
       categoryId ? findByCategoryIdQuery : ""
     } ${levelId ? findByLevelIdQuery : ""} ${price ? findByPriceQuery : ""}`;
@@ -25,7 +24,6 @@ const coursesWithLevelAndCategory = (
       sqlQuery,
       [searchValue, categoryId, levelId, price],
       (error, results) => {
-        console.log(results);
         if (error) return reject(error);
         return resolve(results);
       }
@@ -162,9 +160,10 @@ const userSubCoursesScore = (courseId, userId) => {
   });
 };
 
-const isCourseOwner = (courseId, userId) => {
+const isCourseOwner = (courseId, userId, roleId) => {
   return new Promise((resolve, reject) => {
-    const sqlQuery = "SELECT user_id FROM courses where id = ? and user_id = ?";
+    const sqlQuery =
+      "SELECT course_id FROM user_course uc JOIN users u on u.id = uc.user_id where uc.course_id = ? and uc.user_id = ? and u.role_id = 1";
     db.query(sqlQuery, [courseId, userId], (error, results) => {
       if (error) return reject(error);
       if (results.length > 0) {
