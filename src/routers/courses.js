@@ -14,7 +14,7 @@ const { authenticateToken } = require("../middlewares/auth");
 
 const Router = require("express").Router();
 
-Router.get("/", authenticateToken, getCoursesWithSort);
+Router.get("/", getCoursesWithSort);
 Router.get("/:courseId", getCourseById);
 Router.post("/:courseId", registerCourseById);
 Router.get("/:courseId/subcourses", getSubcourses);

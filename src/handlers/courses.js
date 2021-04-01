@@ -1,7 +1,7 @@
 const {
   coursesWithLevelAndCategory,
   coursesWithSort,
-  findCourseById,
+  courseById,
   registerToCourseId,
   isRegisteredToCourse,
   userSubCoursesScore,
@@ -14,6 +14,8 @@ const {
   updateScore,
   deleteScore,
   registeredCourses,
+  courseByIdForRegistered,
+  countSubcourses,
 } = require("../models/courses");
 const { sendError, sendResponse } = require("../helpers/response");
 const {
@@ -23,10 +25,11 @@ const {
 
 const mysql = require("mysql");
 
+// deprecated for this week
 const getCourses = async (req, res) => {
   try {
     const { search, category, level, price } = req.query;
-    const searchValue = `%${search}%`;
+    const searchValue = `%${search || ""}%`;
     const courses = await coursesWithLevelAndCategory(
       searchValue,
       category,
@@ -43,11 +46,9 @@ const getCourses = async (req, res) => {
 const getCoursesWithSort = async (req, res) => {
   try {
     const { search, sort } = req.query;
-    const { user_id: userId } = req.headers;
     const sortValue = sort?.split("-") || null;
     let sortBy = null;
     let order = null;
-    console.log(sortValue, sortBy, order);
 
     if (sortValue) {
       switch (sortValue[0].toLowerCase()) {
@@ -71,22 +72,10 @@ const getCoursesWithSort = async (req, res) => {
           : mysql.raw("DESC");
     }
     // console.log(sortValue, sortBy.toSqlString(), order.toSqlString());
-    const searchValue = `%${search}%`;
+    const searchValue = `%${search || ""}%`;
+
     const courses = await coursesWithSort(searchValue, sortBy, order);
-    const registeredCourseList = await registeredCourses(userId);
-    const availableCourses = courses.filter(
-      (course) =>
-        !registeredCourseList.filter(
-          (registered) => registered.id === course.id
-        ).length
-    );
-    return sendResponse(
-      res,
-      true,
-      200,
-      "List of Available Courses",
-      availableCourses
-    );
+    return sendResponse(res, true, 200, "List of Available Courses", courses);
   } catch (error) {
     console.log(error);
     return sendError(res, 500);
@@ -96,15 +85,44 @@ const getCoursesWithSort = async (req, res) => {
 const getCourseById = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const course = await findCourseById(courseId);
-    if (course) {
-      return sendResponse(res, true, 200, "Course detail", course);
+    const { user } = req;
+    let course;
+    let subCoursesTotal = 0;
+    let message = "Course detail information";
+    if (user.role_id === 2) {
+      const isRegistered = await isRegisteredToCourse(
+        courseId,
+        user.user_id,
+        user.role_id
+      );
+      if (!isRegistered) {
+        course = await courseById(courseId);
+      } else {
+        subCoursesTotal = await countSubcourses(courseId);
+        registeredCourseDetail = await courseByIdForRegistered(
+          courseId,
+          user.user_id
+        );
+
+        course = {
+          ...registeredCourseDetail,
+          subcourses_total: subCoursesTotal.total || 0,
+        };
+        message = "Course detail for registered student";
+      }
+    } else {
+      // course owner
     }
 
-    return sendResponse(res, false, 404, "Course not found");
+    return sendResponse(res, true, 200, message, course);
+    // if (course) {
+    //   return sendResponse(res, true, 200, "Course detail", course);
+    // }
+
+    // return sendResponse(res, false, 404, "Course not found");
   } catch (error) {
     console.log(error);
-    return sendError(res, 500);
+    return sendError(res, error);
   }
 };
 
@@ -112,7 +130,7 @@ const registerCourseById = async (req, res) => {
   try {
     const { courseId } = req.params;
     const { user_id: userId } = req.body;
-    const isRegistered = await isRegisteredToCourse(courseId, userId);
+    const isRegistered = await isRegisteredToCourse(courseId, userId, roleId);
     if (isRegistered) {
       return sendResponse(
         res,

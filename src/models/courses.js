@@ -50,12 +50,33 @@ const coursesWithSort = (searchValue, sortBy, order) => {
   });
 };
 
-const findCourseById = (courseId) => {
+const courseById = (courseId) => {
   return new Promise((resolve, reject) => {
     const findByIdQuery =
       "SELECT c.*, l.name as level, cat.name as category FROM courses c left join course_levels l on c.level_id = l.id" +
       " left join categories cat on c.category_id = cat.id left join subcourses s on s.course_id = c.id where c.id = ? limit 1";
     db.query(findByIdQuery, [courseId], (error, results) => {
+      if (error) return reject(error);
+
+      if (results.length > 0) {
+        return resolve(results[0]);
+      }
+
+      return resolve(false);
+    });
+  });
+};
+
+const courseByIdForRegistered = (courseId, userId) => {
+  return new Promise((resolve, reject) => {
+    const findByIdQuery =
+      "SELECT c.*, l.name as level, cat.name as category," +
+      "AVG(us.score) as score, count(s.id) as subcourses_done " +
+      "FROM courses c left join course_levels l on c.level_id = l.id " +
+      "left join categories cat on c.category_id = cat.id left join subcourses s on s.course_id = c.id " +
+      "LEFT JOIN user_subcourse us on us.subcourse_id = s.id " +
+      "where us.user_id = ? and c.id = ? limit 1";
+    db.query(findByIdQuery, [userId, courseId], (error, results) => {
       if (error) return reject(error);
 
       if (results.length > 0) {
@@ -81,11 +102,11 @@ const registerToCourseId = (courseId, userId) => {
   });
 };
 
-const isRegisteredToCourse = (courseId, userId) => {
+const isRegisteredToCourse = (courseId, userId, roleId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
-      "SELECT registered_at FROM user_course where course_id = ? and user_id = ? limit 1";
-    db.query(sqlQuery, [courseId, userId], (error, results) => {
+      "SELECT registered_at FROM user_course uc LEFT JOIN users u on uc.user_id = u.id where uc.course_id = ? and uc.user_id = ? and u.role_id = ? limit 1";
+    db.query(sqlQuery, [courseId, userId, roleId], (error, results) => {
       if (error) return reject(error);
 
       if (results.length > 0) {
@@ -104,6 +125,21 @@ const subCourses = (courseId) => {
       if (error) return reject(error);
       if (results.length > 0) {
         return resolve(results);
+      }
+      return resolve(false);
+    });
+  });
+};
+
+const countSubcourses = (courseId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery =
+      "SELECT count(id) as total FROM subcourses where course_id = ? ";
+    db.query(sqlQuery, [courseId], (error, results) => {
+      if (error) return reject(error);
+      console.log(results);
+      if (results.length > 0) {
+        return resolve(results[0]);
       }
       return resolve(false);
     });
@@ -245,7 +281,7 @@ const registeredCourses = (userId) => {
 module.exports = {
   coursesWithLevelAndCategory,
   coursesWithSort,
-  findCourseById,
+  courseById,
   registerToCourseId,
   isRegisteredToCourse,
   subCourses,
@@ -259,4 +295,6 @@ module.exports = {
   isSubcourse,
   deleteScore,
   registeredCourses,
+  courseByIdForRegistered,
+  countSubcourses,
 };
