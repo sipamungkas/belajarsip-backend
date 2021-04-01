@@ -118,7 +118,8 @@ const isRegisteredToCourse = (courseId, userId, roleId) => {
 
 const subCourses = (courseId) => {
   return new Promise((resolve, reject) => {
-    const sqlQuery = "SELECT * FROM subcourses where course_id = ? ";
+    const sqlQuery =
+      "SELECT s.id,s.title,c.id as course_id,s.date,c.session_start,c.duration FROM subcourses s JOIN courses c on s.course_id = c.id where c.id = ? ";
     db.query(sqlQuery, [courseId], (error, results) => {
       if (error) return reject(error);
       if (results.length > 0) {
@@ -135,7 +136,6 @@ const countSubcourses = (courseId) => {
       "SELECT count(id) as total FROM subcourses where course_id = ? ";
     db.query(sqlQuery, [courseId], (error, results) => {
       if (error) return reject(error);
-      console.log(results);
       if (results.length > 0) {
         return resolve(results[0]);
       }

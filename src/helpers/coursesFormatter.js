@@ -16,13 +16,16 @@ const formatSubcourse = (subcourse) => {
     id: subcourse.id,
     title: subcourse.title,
     course_id: subcourse.id,
+    date: subcourse.date,
+    session_start: subcourse.session_start,
+    duration: subcourse.duration,
     score: subcourse?.score || 0,
   };
   return formattedSubcourse;
 };
 
-const formatSubcourses = (subcourses) => {
+const formatSubcoursesStudents = (subcourses) => {
   return subcourses.map((subcourse) => formatSubcourse(subcourse));
 };
 
-module.exports = { formatMembers, formatSubcourses };
+module.exports = { formatMembers, formatSubcoursesStudents };

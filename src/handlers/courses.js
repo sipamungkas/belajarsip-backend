@@ -20,7 +20,7 @@ const {
 const { sendError, sendResponse } = require("../helpers/response");
 const {
   formatMembers,
-  formatSubcourses,
+  formatSubcoursesStudents,
 } = require("../helpers/coursesFormatter");
 
 const mysql = require("mysql");
@@ -204,7 +204,7 @@ const getSubcourses = async (req, res) => {
           true,
           200,
           "List of Subcourses for Instructor",
-          formatSubcourses(subcourses)
+          subcourses
         );
         break;
       case 2:
@@ -222,7 +222,7 @@ const getSubcourses = async (req, res) => {
           true,
           200,
           "List of Subcourses for Student",
-          formatSubcourses(subcourses)
+          formatSubcoursesStudents(subcourses)
         );
 
         break;
@@ -288,7 +288,7 @@ const getMemberSubcourse = async (req, res) => {
         true,
         200,
         "List of member subcourse score",
-        formatSubcourses(subcourses)
+        formatSubcoursesStudents(subcourses)
       );
     }
 
