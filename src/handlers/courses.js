@@ -118,18 +118,18 @@ const getCourseById = async (req, res) => {
         }
         break;
       case 1:
+        const couserInformation = await courseById(courseId);
+        if (!couserInformation) {
+          return sendResponse(res, false, 404, "Course not found");
+        }
         const isOwner = await isCourseOwner(
           courseId,
           user.user_id,
           user.role_id
         );
-        const couserInformation = await courseById(courseId);
-        if (!couserInformation) {
-          return sendResponse(res, false, 404, "Course not found");
-        }
-
-        if (!isOwner)
+        if (!isOwner) {
           return sendResponse(res, false, 401, "Unauthorized access");
+        }
 
         const subcourses = await subCourses(courseId);
         const subcoursesPassed = subcourses.filter(
@@ -183,33 +183,53 @@ const registerCourseById = async (req, res) => {
 const getSubcourses = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const { user_id: userId } = req.body;
-
+    const { user_id: userId, role_id: roleId } = req.user;
     if (!courseId || !userId) {
       return sendResponse(res, false, 422, "Unprocessable entity!");
     }
 
     let subcourses = await subCourses(courseId);
-    if (subcourses) {
-      const isRegistered = await isRegisteredToCourse(courseId, userId);
-      if (isRegistered) {
-        userScore = await userSubCoursesScore(courseId, userId);
-        subcourses = subcourses.map((data) => ({
-          ...data,
-          ...userScore.find((score) => score.id === data.id),
-        }));
-      }
-
-      return sendResponse(
-        res,
-        true,
-        200,
-        "List of Subcourses",
-        formatSubcourses(subcourses)
-      );
+    if (!subcourses) {
+      return sendResponse(res, false, 404, "Subcourses not found");
     }
 
-    return sendResponse(res, false, 404, "Subcourses not found");
+    switch (roleId) {
+      case 1:
+        const isOwner = isCourseOwner(courseId, userId, roleId);
+        if (!isOwner) {
+          return sendResponse(res, false, 401, "Unauthorized access");
+        }
+        return sendResponse(
+          res,
+          true,
+          200,
+          "List of Subcourses for Instructor",
+          formatSubcourses(subcourses)
+        );
+        break;
+      case 2:
+        const isRegistered = await isRegisteredToCourse(courseId, userId);
+        if (isRegistered) {
+          userScore = await userSubCoursesScore(courseId, userId);
+          subcourses = subcourses.map((data) => ({
+            ...data,
+            ...userScore.find((score) => score.id === data.id),
+          }));
+        }
+
+        return sendResponse(
+          res,
+          true,
+          200,
+          "List of Subcourses for Student",
+          formatSubcourses(subcourses)
+        );
+
+        break;
+      default:
+        return sendResponse(res, false, 404, "Subcourses not found");
+        break;
+    }
   } catch (error) {
     console.log(error);
     return sendError(rs, error);
