@@ -43,7 +43,7 @@ const userAuthentication = async (req, res) => {
     const token = jwt.sign(data, jwtSecret, {
       expiresIn: "24h",
     });
-    return sendResponse(res, true, 200, { token });
+    return sendResponse(res, true, 200, "Login success", { token });
   } catch (error) {
     console.log(error);
     return sendError(res, error);

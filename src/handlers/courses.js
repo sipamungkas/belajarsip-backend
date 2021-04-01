@@ -92,31 +92,6 @@ const getCourseById = async (req, res) => {
     let statusCode = 404;
     let success = true;
     switch (user.role_id) {
-      case 2:
-        const isRegistered = await isRegisteredToCourse(
-          courseId,
-          user.user_id,
-          user.role_id
-        );
-        if (!isRegistered) {
-          course = await courseById(courseId);
-          message = "Course detail information";
-          statusCode = 200;
-        } else {
-          subCoursesTotal = await countSubcourses(courseId);
-          registeredCourseDetail = await courseByIdForRegistered(
-            courseId,
-            user.user_id
-          );
-
-          course = {
-            ...registeredCourseDetail,
-            subcourses_total: subCoursesTotal.total || 0,
-          };
-          message = "Course detail for registered student";
-          statusCode = 200;
-        }
-        break;
       case 1:
         const couserInformation = await courseById(courseId);
         if (!couserInformation) {
@@ -142,6 +117,28 @@ const getCourseById = async (req, res) => {
         message = "Course detail information for instructor";
         statusCode = 200;
         break;
+      case 2:
+        const isRegistered = await isRegisteredToCourse(courseId, user.user_id);
+        if (!isRegistered) {
+          course = await courseById(courseId);
+          message = "Course detail information";
+          statusCode = 200;
+        } else {
+          subCoursesTotal = await countSubcourses(courseId);
+          registeredCourseDetail = await courseByIdForRegistered(
+            courseId,
+            user.user_id
+          );
+
+          course = {
+            ...registeredCourseDetail,
+            subcourses_total: subCoursesTotal.total || 0,
+          };
+          message = "Course detail for registered student";
+          statusCode = 200;
+        }
+        break;
+
       default:
         break;
     }
@@ -157,9 +154,17 @@ const getCourseById = async (req, res) => {
 
 const registerCourseById = async (req, res) => {
   try {
-    const { courseId } = req.params;
-    const { user_id: userId } = req.body;
-    const isRegistered = await isRegisteredToCourse(courseId, userId, roleId);
+    const { course_id: courseId } = req.body;
+    const { user_id: userId, role_id: roleId } = req.user;
+    if (roleId !== 2) {
+      return sendResponse(
+        res,
+        false,
+        401,
+        "You are not a student, you can't enroll to this course"
+      );
+    }
+    const isRegistered = await isRegisteredToCourse(courseId, userId);
     if (isRegistered) {
       return sendResponse(
         res,
@@ -170,10 +175,10 @@ const registerCourseById = async (req, res) => {
     }
     const registerStatus = await registerToCourseId(courseId, userId);
     if (registerStatus) {
-      return sendResponse(res, true, 201, "course registration success");
+      return sendResponse(res, true, 201, "Course registration success");
     }
 
-    return sendResponse(res, false, 200, "course registration failed");
+    return sendResponse(res, false, 200, "Course registration failed");
   } catch (error) {
     console.log(error);
     return sendError(res, 500);

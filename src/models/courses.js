@@ -100,11 +100,11 @@ const registerToCourseId = (courseId, userId) => {
   });
 };
 
-const isRegisteredToCourse = (courseId, userId, roleId) => {
+const isRegisteredToCourse = (courseId, userId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
-      "SELECT registered_at FROM user_course uc LEFT JOIN users u on uc.user_id = u.id where uc.course_id = ? and uc.user_id = ? and u.role_id = ? limit 1";
-    db.query(sqlQuery, [courseId, userId, roleId], (error, results) => {
+      "SELECT registered_at FROM user_course uc LEFT JOIN users u on uc.user_id = u.id where uc.course_id = ? and uc.user_id = ? limit 1";
+    db.query(sqlQuery, [courseId, userId], (error, results) => {
       if (error) return reject(error);
 
       if (results.length > 0) {

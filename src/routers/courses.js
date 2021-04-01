@@ -16,7 +16,7 @@ const Router = require("express").Router();
 
 Router.get("/", getCoursesWithSort);
 Router.get("/:courseId", getCourseById);
-Router.post("/:courseId", registerCourseById);
+Router.post("/register", registerCourseById);
 Router.get("/:courseId/subcourses", getSubcourses);
 Router.get("/:courseId/students", getCourseStudents);
 Router.get("/:courseId/students/:studentId", getStudentSubcourse);
