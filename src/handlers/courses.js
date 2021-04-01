@@ -88,49 +88,67 @@ const getCourseById = async (req, res) => {
     const { user } = req;
     let course;
     let subCoursesTotal = 0;
-    let message = "Course detail information";
-    if (user.role_id === 2) {
-      const isRegistered = await isRegisteredToCourse(
-        courseId,
-        user.user_id,
-        user.role_id
-      );
-      if (!isRegistered) {
-        course = await courseById(courseId);
-      } else {
-        subCoursesTotal = await countSubcourses(courseId);
-        registeredCourseDetail = await courseByIdForRegistered(
+    let message = "Course not found";
+    let statusCode = 404;
+    let success = true;
+    switch (user.role_id) {
+      case 2:
+        const isRegistered = await isRegisteredToCourse(
           courseId,
-          user.user_id
+          user.user_id,
+          user.role_id
         );
+        if (!isRegistered) {
+          course = await courseById(courseId);
+          message = "Course detail information";
+          statusCode = 200;
+        } else {
+          subCoursesTotal = await countSubcourses(courseId);
+          registeredCourseDetail = await courseByIdForRegistered(
+            courseId,
+            user.user_id
+          );
 
+          course = {
+            ...registeredCourseDetail,
+            subcourses_total: subCoursesTotal.total || 0,
+          };
+          message = "Course detail for registered student";
+          statusCode = 200;
+        }
+        break;
+      case 1:
+        const isOwner = await isCourseOwner(
+          courseId,
+          user.user_id,
+          user.role_id
+        );
+        const couserInformation = await courseById(courseId);
+        if (!couserInformation) {
+          return sendResponse(res, false, 404, "Course not found");
+        }
+
+        if (!isOwner)
+          return sendResponse(res, false, 401, "Unauthorized access");
+
+        const subcourses = await subCourses(courseId);
+        const subcoursesPassed = subcourses.filter(
+          (subcourse) => new Date(subcourse.date) < new Date()
+        );
         course = {
-          ...registeredCourseDetail,
-          subcourses_total: subCoursesTotal.total || 0,
+          ...couserInformation,
+          progress: (subcoursesPassed.length / subcourses.length) * 100,
         };
-        message = "Course detail for registered student";
-      }
-    } else {
-      const isOwner = await isCourseOwner(courseId, user.user_id, user.role_id);
-      if (!isOwner) return sendResponse(res, false, 401, "Unauthorized access");
-      const couserInformation = await courseById(courseId);
-      const subcourses = await subCourses(courseId);
-      const subcoursesPassed = subcourses.filter(
-        (subcourse) => new Date(subcourse.date) < new Date()
-      );
-      course = {
-        ...couserInformation,
-        progress: (subcoursesPassed.length / subcourses.length) * 100,
-      };
+        message = "Course detail information for instructor";
+        statusCode = 200;
+        break;
+      default:
+        break;
     }
-
-    return sendResponse(res, true, 200, message, course);
-
-    // if (course) {
-    //   return sendResponse(res, true, 200, "Course detail", course);
-    // }
-
-    // return sendResponse(res, false, 404, "Course not found");
+    if (!course) {
+      success = false;
+    }
+    return sendResponse(res, success, statusCode, message, course);
   } catch (error) {
     console.log(error);
     return sendError(res, error);
