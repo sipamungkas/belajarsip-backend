@@ -1,6 +1,6 @@
 const formatUserAuthentication = (user, token) => {
-  const { id, name, username, role_id, avatar } = user;
-  return { id, name, username, role_id, token };
+  const { id, name, username, roleId, avatar } = user;
+  return { avatar, id, name, username, role_id: roleId, token };
 };
 
 module.exports = { formatUserAuthentication };

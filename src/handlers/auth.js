@@ -94,9 +94,9 @@ const sendOTP = async (req, res) => {
     }
     const buffer = await crypto.randomBytes(20);
     const token = buffer.toString("hex");
-    const expired_at = new Date().getTime() + 3 * 60 * 60 * 1000;
+    const expiredAt = new Date().getTime() + 3 * 60 * 60 * 1000;
     const otp = Math.floor(Math.random() * 9000);
-    await updateResetToken(token, expired_at, otp, email);
+    await updateResetToken(token, expiredAt, otp, email);
     // reserved for send email service
 
     return sendResponse(
@@ -140,17 +140,9 @@ const otpVerification = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-    const {
-      reset_token,
-      otp,
-      password,
-      confirm_password: confirmPassword,
-    } = req.body;
-    if (password !== confirmPassword) {
-      return sendResponse(res, false, 422, "Password doesn't match");
-    }
+    const { reset_token: resetToken, otp, password } = req.body;
 
-    const isUpdated = await newPassword(reset_token, otp, password);
+    const isUpdated = await newPassword(resetToken, otp, password);
     console.log(isUpdated);
     if (isUpdated) {
       return sendResponse(res, true, 200, "Password updated");

@@ -44,7 +44,7 @@ const updateProfile = async (req, res) => {
         break;
       default:
         return sendResponse(res, false, 422, "Unprocessable entity");
-        break;
+      // break;
     }
     if (!data) {
       return sendResponse(res, false, 422, "Unprocessable entity");
