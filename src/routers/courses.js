@@ -22,7 +22,7 @@ Router.get("/:courseId/students/:studentId", getStudentSubcourse);
 Router.post("/:courseId/students", createStudentScore);
 Router.patch("/:courseId/students/:studentId", updateStudentScore);
 Router.delete(
-  "/:courseId/students/:studentId/subcourses/:subcourseId",
+  "/:courseId/students/:studentId/:subcourseId",
   deleteStudentScore
 );
 module.exports = Router;

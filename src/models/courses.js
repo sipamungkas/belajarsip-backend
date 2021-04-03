@@ -205,11 +205,14 @@ const memberSubcourseScore = (courseId, userId) => {
   });
 };
 
-const isScored = (subcourseId, memberId) => {
+const isSubcourseOwner = (userId, subcourseId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
-      "SELECT score from user_subcourse where subcourse_id = ? and user_id = ?";
-    db.query(sqlQuery, [subcourseId, memberId], (error, results) => {
+      "SELECT c.id FROM courses c LEFT JOIN subcourses s on c.id = s.course_id " +
+      "LEFT JOIN user_course uc on uc.course_id = c.id " +
+      "where uc.user_id = ? and s.id = ?";
+    db.query(sqlQuery, [userId, subcourseId], (error, results) => {
+      console.log(sqlQuery, results);
       if (error) return reject(error);
       if (results.length > 0) {
         return resolve(true);
@@ -219,22 +222,36 @@ const isScored = (subcourseId, memberId) => {
   });
 };
 
-const createScore = (subcourseId, memberId, score) => {
+const isScored = (subcourseId, studentId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery =
+      "SELECT score from user_subcourse where subcourse_id = ? and user_id = ?";
+    db.query(sqlQuery, [subcourseId, studentId], (error, results) => {
+      if (error) return reject(error);
+      if (results.length > 0) {
+        return resolve(true);
+      }
+      return resolve(false);
+    });
+  });
+};
+
+const createScore = (subcourseId, studentId, score) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
       "INSERT INTO user_subcourse(subcourse_id,user_id,score) values (?,?,?)";
-    db.query(sqlQuery, [subcourseId, memberId, score], (error, results) => {
+    db.query(sqlQuery, [subcourseId, studentId, score], (error, results) => {
       if (error) return reject(error);
       return resolve(results);
     });
   });
 };
 
-const updateScore = (subcourseId, memberId, score) => {
+const updateScore = (subcourseId, studentId, score) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
       "UPDATE user_subcourse SET score = ? WHERE  subcourse_id = ? and user_id = ?";
-    db.query(sqlQuery, [score, subcourseId, memberId], (error, results) => {
+    db.query(sqlQuery, [score, subcourseId, studentId], (error, results) => {
       if (error) return reject(error);
       if (results.affectedRows > 0) {
         return resolve(true);
@@ -244,11 +261,11 @@ const updateScore = (subcourseId, memberId, score) => {
   });
 };
 
-const deleteScore = (subcourseId, memberId) => {
+const deleteScore = (subcourseId, studentId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
       "DELETE FROM user_subcourse where subcourse_id = ? and user_id = ?";
-    db.query(sqlQuery, [subcourseId, memberId], (error, results) => {
+    db.query(sqlQuery, [subcourseId, studentId], (error, results) => {
       if (error) return reject(error);
       return resolve(true);
     });
@@ -296,4 +313,5 @@ module.exports = {
   registeredCourses,
   courseByIdForRegistered,
   countSubcourses,
+  isSubcourseOwner,
 };

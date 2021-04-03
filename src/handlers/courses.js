@@ -16,6 +16,7 @@ const {
   registeredCourses,
   courseByIdForRegistered,
   countSubcourses,
+  isSubcourseOwner,
 } = require("../models/courses");
 const { sendError, sendResponse } = require("../helpers/response");
 const {
@@ -316,25 +317,35 @@ const getStudentSubcourse = async (req, res) => {
 
 const createStudentScore = async (req, res) => {
   try {
-    const { subcourse_id: subcourseId, member_id: studentId, score } = req.body;
+    const {
+      subcourse_id: subcourseId,
+      student_id: studentId,
+      score,
+    } = req.body;
+    const { user_id: userId } = req.user;
+    const isOwnerBySubcourseId = await isSubcourseOwner(userId, subcourseId);
+    if (!isOwnerBySubcourseId) {
+      return sendResponse(res, false, 401, "Unauthorized access");
+    }
+
     const subcourseExists = isSubcourse(subcourseId);
     if (!subcourseExists) {
       return sendResponse(res, false, 404, "Subcourse not found!");
     }
-    const isMemberScored = await isScored(subcourseId, studentId);
-    if (isMemberScored) {
-      return sendResponse(res, true, 200, "Member already have score");
+    const isStudentHasScore = await isScored(subcourseId, studentId);
+    if (isStudentHasScore) {
+      return sendResponse(res, true, 200, "Student already have score");
     }
     await createScore(subcourseId, studentId, score);
     return sendResponse(
       res,
       true,
       201,
-      "Create new score for member successfully"
+      "Create new score for student successfully"
     );
   } catch (error) {
     console.log(error);
-    return sendError(500, error);
+    return sendError(res, error);
   }
 };
 
@@ -342,35 +353,54 @@ const updateStudentScore = async (req, res) => {
   try {
     const { studentId } = req.params;
     const { subcourse_id: subcourseId, score } = req.body;
+    const { user_id: userId } = req.user;
+    const isOwnerBySubcourseId = await isSubcourseOwner(userId, subcourseId);
+    if (!isOwnerBySubcourseId) {
+      return sendResponse(res, false, 401, "Unauthorized access");
+    }
+
     const subcourseExists = isSubcourse(subcourseId);
     if (!subcourseExists) {
       return sendResponse(res, false, 404, "Subcourse not found!");
     }
-    const isMemberScored = await isScored(subcourseId, studentId);
-    if (!isMemberScored) {
+
+    const isStudentHasScore = await isScored(subcourseId, studentId);
+    if (!isStudentHasScore) {
       return sendResponse(
         res,
         true,
         404,
-        "Member don't have score yet, please create new score!"
+        "Student don't have score yet, please create new score!"
       );
     }
+
     await updateScore(subcourseId, studentId, score);
-    return sendResponse(res, true, 201, "Update score for member successfully");
+    return sendResponse(res, true, 201, "Update student's score success");
   } catch (error) {
     console.log(error);
-    return sendError(500, error);
+    return sendError(res, error);
   }
 };
 
 const deleteStudentScore = async (req, res) => {
   try {
     const { studentId, subcourseId } = req.params;
+    const { user_id: userId } = req.user;
+    const isOwnerBySubcourseId = await isSubcourseOwner(userId, subcourseId);
+    if (!isOwnerBySubcourseId) {
+      return sendResponse(res, false, 401, "Unauthorized access");
+    }
+
+    const subcourseExists = isSubcourse(subcourseId);
+    if (!subcourseExists) {
+      return sendResponse(res, false, 404, "Subcourse not found!");
+    }
+
     await deleteScore(subcourseId, studentId);
-    return sendResponse(res, true, 204, "Delete score for member successfully");
+    return sendResponse(res, true, 204, "Delete student's score success");
   } catch (error) {
     console.log(error);
-    return sendError(500, error);
+    return sendError(res, error);
   }
 };
 
