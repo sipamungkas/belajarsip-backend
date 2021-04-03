@@ -9,11 +9,13 @@ const {
   updateStudentScore,
   deleteStudentScore,
   getCoursesWithSort,
+  getMyClassWithLimitAndSort,
 } = require("../handlers/courses");
 
 const Router = require("express").Router();
 
 Router.get("/", getCoursesWithSort);
+Router.get("/my-class", getMyClassWithLimitAndSort);
 Router.get("/:courseId", getCourseById);
 Router.post("/register", registerCourseById);
 Router.get("/:courseId/subcourses", getSubcourses);
@@ -25,4 +27,5 @@ Router.delete(
   "/:courseId/students/:studentId/:subcourseId",
   deleteStudentScore
 );
+
 module.exports = Router;

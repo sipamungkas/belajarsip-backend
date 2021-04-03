@@ -17,11 +17,14 @@ const {
   courseByIdForRegistered,
   countSubcourses,
   isSubcourseOwner,
+  myClassWithLimitAndSort,
 } = require("../models/courses");
+
 const { sendError, sendResponse } = require("../helpers/response");
 const {
   formatMembers,
   formatSubcoursesStudents,
+  formatMyCourses,
 } = require("../helpers/coursesFormatter");
 
 const mysql = require("mysql");
@@ -404,6 +407,61 @@ const deleteStudentScore = async (req, res) => {
   }
 };
 
+const getMyClassWithLimitAndSort = async (req, res) => {
+  try {
+    const { user_id: userId, role_id: roleId } = req.user;
+    const { limit, search, sort } = req.query;
+    const sanitizedLimit =
+      typeof parseInt(limit) === "number" && parseInt(limit) > 0
+        ? parseInt(limit)
+        : 0;
+
+    const sortValue = sort?.split("-") || null;
+    let sortBy = null;
+    let order = null;
+
+    if (sortValue) {
+      switch (sortValue[0].toLowerCase()) {
+        case "category":
+          sortBy = mysql.raw("category");
+          break;
+        case "level":
+          sortBy = mysql.raw("c.level_id");
+          break;
+        case "price":
+          sortBy = mysql.raw("c.price");
+          break;
+        default:
+          sortBy = null;
+          break;
+      }
+
+      order =
+        sortValue[1].toLowerCase() === "az"
+          ? mysql.raw("ASC")
+          : mysql.raw("DESC");
+    }
+    const searchValue = `%${search || ""}%`;
+    const courses = await myClassWithLimitAndSort(
+      userId,
+      sanitizedLimit,
+      searchValue,
+      sortBy,
+      order
+    );
+    return sendResponse(
+      res,
+      true,
+      200,
+      "List of Enrolled Courses",
+      formatMyCourses(courses)
+    );
+  } catch (error) {
+    console.log(error);
+    return sendError(res, 500);
+  }
+};
+
 module.exports = {
   getCourses,
   getCoursesWithSort,
@@ -415,4 +473,5 @@ module.exports = {
   createStudentScore,
   updateStudentScore,
   deleteStudentScore,
+  getMyClassWithLimitAndSort,
 };
