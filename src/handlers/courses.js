@@ -18,6 +18,7 @@ const {
   countSubcourses,
   isSubcourseOwner,
   studentMyClassWithLimitAndSort,
+  instructorMyClassWithLimitAndSort,
 } = require("../models/courses");
 
 const { sendError, sendResponse } = require("../helpers/response");
@@ -25,6 +26,7 @@ const {
   formatMembers,
   formatSubcoursesStudents,
   formatMyCourses,
+  formatMyCoursesInstructor,
 } = require("../helpers/coursesFormatter");
 
 const mysql = require("mysql");
@@ -449,13 +451,14 @@ const getMyClassWithLimitAndSort = async (req, res) => {
 
     switch (roleId) {
       case 1:
-        courses = await studentMyClassWithLimitAndSort(
+        courses = await instructorMyClassWithLimitAndSort(
           userId,
           sanitizedLimit,
           searchValue,
           sortBy,
           order
         );
+        formattedMyCourses = formatMyCoursesInstructor(courses);
         break;
       case 2:
         courses = await studentMyClassWithLimitAndSort(

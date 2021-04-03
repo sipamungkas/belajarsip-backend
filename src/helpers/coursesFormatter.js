@@ -46,4 +46,27 @@ const formatMyCourses = (courses) => {
   return courses.map((course) => formatMyCourse(course));
 };
 
-module.exports = { formatMembers, formatSubcoursesStudents, formatMyCourses };
+const formatMyCourseInstructor = (course) => {
+  const formattedCourse = {
+    day: course.day,
+    name: course.name,
+    description: course.description,
+    category: course.category,
+    session_start: course.session_start,
+    duration: course.duration,
+    students: course.students || 0,
+  };
+
+  return formattedCourse;
+};
+
+const formatMyCoursesInstructor = (courses) => {
+  return courses.map((course) => formatMyCourseInstructor(course));
+};
+
+module.exports = {
+  formatMembers,
+  formatSubcoursesStudents,
+  formatMyCourses,
+  formatMyCoursesInstructor,
+};

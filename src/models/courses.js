@@ -212,7 +212,6 @@ const isSubcourseOwner = (userId, subcourseId) => {
       "LEFT JOIN user_course uc on uc.course_id = c.id " +
       "where uc.user_id = ? and s.id = ?";
     db.query(sqlQuery, [userId, subcourseId], (error, results) => {
-      console.log(sqlQuery, results);
       if (error) return reject(error);
       if (results.length > 0) {
         return resolve(true);
@@ -362,11 +361,9 @@ const studentMyClassWithLimitAndSort = (
     } GROUP BY uc.user_id,uc.course_id ${
       sortBy && order ? sortByQuery : ""
     } ${limitQuery}`;
-    console.log(searchValue, sqlQuery);
+
     db.query(sqlQuery, params, (error, results) => {
       if (error) return reject(error);
-
-      console.log(results);
 
       if (results.length > 0) {
         return resolve(results);
@@ -397,21 +394,20 @@ const instructorMyClassWithLimitAndSort = (
     }
     params.push(limit);
 
-    const sqlQuery = `SELECT (uc.user_id), (c.name), (c.description), (cat.name) as category, COUNT(us.score) as finishedClass, count(sc.course_id) as totalClass,AVG(us.score) as score from user_course uc 
+    const sqlQuery = `SELECT c.name, c.description,(d.name) as day, (cat.name) as category, c.session_start, c.duration, COUNT(uc.user_id) as students from user_course uc 
     left join courses c on uc.course_id = c.id 
     left join categories cat on c.category_id = cat.id 
     left join subcourses sc on uc.course_id = sc.course_id 
     left join user_subcourse us on sc.id = us.subcourse_id
+    left join days d on d.id = c.day_id
     where uc.user_id = ? ${
       searchValue ? searchQuery : ""
     } GROUP BY uc.user_id,uc.course_id ${
       sortBy && order ? sortByQuery : ""
     } ${limitQuery}`;
-    console.log(searchValue, sqlQuery);
+
     db.query(sqlQuery, params, (error, results) => {
       if (error) return reject(error);
-
-      console.log(results);
 
       if (results.length > 0) {
         return resolve(results);
