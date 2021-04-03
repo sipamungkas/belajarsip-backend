@@ -244,24 +244,28 @@ const getSubcourses = async (req, res) => {
 const getCourseStudents = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const { user_id: userId } = req.body;
+    const { user_id: userId } = req.user;
     const isOwner = await isCourseOwner(courseId, userId);
     if (!isOwner) {
       return sendResponse(res, false, 401, "Unauthorized access");
     }
-    const members = await courseStudents(courseId);
+    const students = await courseStudents(courseId);
+    console.log(students);
+    const studentsOnly = students.filter(
+      (student) => student.userId !== userId
+    );
 
-    if (members) {
+    if (studentsOnly) {
       return sendResponse(
         res,
         true,
         200,
-        "List of registered members",
-        formatMembers(members)
+        "List of registered students",
+        formatMembers(studentsOnly)
       );
     }
 
-    return sendResponse(res, false, 404, "Members not found");
+    return sendResponse(res, false, 404, "students not found");
   } catch (error) {
     console.log(error);
     return sendError(res, 500);
@@ -271,7 +275,7 @@ const getCourseStudents = async (req, res) => {
 const getStudentSubcourse = async (req, res) => {
   try {
     const { courseId, studentId } = req.params;
-    const { user_id: userId } = req.body;
+    const { user_id: userId } = req.user;
     const isOwner = await isCourseOwner(courseId, userId);
     if (!isOwner) {
       return sendResponse(res, false, 401, "Unauthorized access");

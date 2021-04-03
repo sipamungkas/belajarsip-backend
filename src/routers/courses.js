@@ -10,7 +10,6 @@ const {
   deleteStudentScore,
   getCoursesWithSort,
 } = require("../handlers/courses");
-const { authenticateToken } = require("../middlewares/auth");
 
 const Router = require("express").Router();
 
