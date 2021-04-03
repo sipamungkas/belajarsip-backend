@@ -15,7 +15,7 @@ const formatInstructorTask = (task) => {
     title: task.title,
     start_at: task.session_start,
     duration: task.duration,
-    student: task?.student || 0,
+    students: task?.students || 0,
   };
 };
 

@@ -4,6 +4,7 @@ const {
   getTasksByDate,
   getTasksByDateInstructor,
 } = require("../models/dashboard");
+const { isCourseOwner } = require("../models/courses");
 const { sendError, sendResponse } = require("../helpers/response");
 const {
   formatTasks,
@@ -12,7 +13,12 @@ const {
 
 const addNewTask = async (req, res) => {
   try {
+    const { user_id: userId } = req.user;
     const { title, course_id: courseId, date } = req.body;
+    const isOwner = await isCourseOwner(courseId, userId);
+    if (!isOwner) {
+      return sendResponse(res, false, 401, "Unauthorized access");
+    }
     const courseDay = await getCourseDay(courseId);
     if (!courseDay) return sendResponse(res, false, 404, "Course not found");
     console.log(
@@ -65,24 +71,5 @@ const getSchedule = async (req, res) => {
     return sendError(res, 500);
   }
 };
-
-// const getInstructorSchedule = async (req, res) => {
-//   try {
-//     const { date, user_id: userId } = req.body;
-
-//     console.log(todayTasks);
-//     if (!todayTasks) return sendResponse(res, false, 404, "Not found");
-//     return sendResponse(
-//       res,
-//       true,
-//       200,
-//       "List of today task",
-//       formatInstructorTasks(todayTasks)
-//     );
-//   } catch (error) {
-//     console.log(error);
-//     return sendError(res, 500);
-//   }
-// };
 
 module.exports = { addNewTask, getSchedule };

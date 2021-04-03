@@ -102,11 +102,7 @@ const getCourseById = async (req, res) => {
         if (!couserInformation) {
           return sendResponse(res, false, 404, "Course not found");
         }
-        const isOwner = await isCourseOwner(
-          courseId,
-          user.user_id,
-          user.role_id
-        );
+        const isOwner = await isCourseOwner(courseId, user.user_id);
         if (!isOwner) {
           return sendResponse(res, false, 401, "Unauthorized access");
         }
@@ -205,7 +201,7 @@ const getSubcourses = async (req, res) => {
 
     switch (roleId) {
       case 1:
-        const isOwner = isCourseOwner(courseId, userId, roleId);
+        const isOwner = isCourseOwner(courseId, userId);
         if (!isOwner) {
           return sendResponse(res, false, 401, "Unauthorized access");
         }

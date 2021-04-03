@@ -1,11 +1,9 @@
 const Router = require("express").Router();
-const {
-  addNewTask,
-  getSchedule,
-  // getInstructorSchedule,
-} = require("../handlers/dashboard");
+const { addNewTask, getSchedule } = require("../handlers/dashboard");
 
-Router.post("/", addNewTask);
+const { isInstructor } = require("../middlewares/auth");
+
+Router.post("/", isInstructor, addNewTask);
 Router.get("/:date", getSchedule);
 // Router.get("/instructor", getInstructorSchedule);
 

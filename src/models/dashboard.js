@@ -41,12 +41,12 @@ const getTasksByDate = (date, userId) => {
 const getTasksByDateInstructor = (date, userId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
-      "SELECT c.name, c.id as course_id, s.title, c.session_start, c.duration," +
-      "(SELECT COUNT(uc.user_id) from user_course uc where uc.course_id = c.id) as students" +
+      "SELECT c.name,s.id,s.title, c.id as course_id, s.title, c.session_start, c.duration," +
+      "(SELECT COUNT(uc.user_id) from user_course uc where uc.course_id = c.id and uc.user_id != ?) as students" +
       " FROM courses c LEFT JOIN subcourses s on c.id = s.course_id " +
       "LEFT JOIN user_course uc2 on uc2.course_id = c.id " +
       "where s.date = ? and uc2.user_id = ? ORDER BY c.session_start ASC";
-    db.query(sqlQuery, [date, userId], (error, results) => {
+    db.query(sqlQuery, [userId, date, userId], (error, results) => {
       console.log(results);
       if (error) return reject(error);
       if (results.length > 0) {
