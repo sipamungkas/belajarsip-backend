@@ -1,6 +1,5 @@
 require("dotenv").config();
 const express = require("express");
-const mysql = require("mysql");
 const Router = require("./src/routers/index");
 
 const app = express();
