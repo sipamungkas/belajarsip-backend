@@ -1,5 +1,4 @@
 const {
-  getCourses,
   getCourseById,
   registerCourseById,
   getSubcourses,

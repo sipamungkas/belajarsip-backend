@@ -13,7 +13,6 @@ const {
   isSubcourse,
   updateScore,
   deleteScore,
-  registeredCourses,
   courseByIdForRegistered,
   countSubcourses,
   isSubcourseOwner,
@@ -131,7 +130,7 @@ const getCourseById = async (req, res) => {
           statusCode = 200;
         } else {
           subCoursesTotal = await countSubcourses(courseId);
-          registeredCourseDetail = await courseByIdForRegistered(
+          const registeredCourseDetail = await courseByIdForRegistered(
             courseId,
             user.user_id
           );
@@ -217,11 +216,11 @@ const getSubcourses = async (req, res) => {
           "List of Subcourses for Instructor",
           subcourses
         );
-        break;
+      // break;
       case 2:
         const isRegistered = await isRegisteredToCourse(courseId, userId);
         if (isRegistered) {
-          userScore = await userSubCoursesScore(courseId, userId);
+          const userScore = await userSubCoursesScore(courseId, userId);
           subcourses = subcourses.map((data) => ({
             ...data,
             ...userScore.find((score) => score.id === data.id),
@@ -235,15 +234,14 @@ const getSubcourses = async (req, res) => {
           "List of Subcourses for Student",
           formatSubcoursesStudents(subcourses)
         );
-
-        break;
+      // break;
       default:
         return sendResponse(res, false, 404, "Subcourses not found");
-        break;
+      // break;
     }
   } catch (error) {
     console.log(error);
-    return sendError(rs, error);
+    return sendError(res, error);
   }
 };
 
@@ -289,7 +287,7 @@ const getStudentSubcourse = async (req, res) => {
 
     let subcourses = await subCourses(courseId);
     if (subcourses) {
-      userScore = await userSubCoursesScore(courseId, studentId);
+      const userScore = await userSubCoursesScore(courseId, studentId);
 
       if (userScore) {
         subcourses = subcourses.map((data) => ({

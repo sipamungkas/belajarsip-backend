@@ -1,5 +1,4 @@
 const db = require("../database/dbMySql");
-const mysql = require("mysql");
 
 const coursesWithLevelAndCategory = (
   searchValue,
@@ -160,7 +159,7 @@ const userSubCoursesScore = (courseId, userId) => {
   });
 };
 
-const isCourseOwner = (courseId, userId, roleId) => {
+const isCourseOwner = (courseId, userId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
       "SELECT course_id FROM user_course uc JOIN users u on u.id = uc.user_id where uc.course_id = ? and uc.user_id = ? and u.role_id = 1";
@@ -266,7 +265,7 @@ const deleteScore = (subcourseId, studentId) => {
       "DELETE FROM user_subcourse where subcourse_id = ? and user_id = ?";
     db.query(sqlQuery, [subcourseId, studentId], (error, results) => {
       if (error) return reject(error);
-      return resolve(true);
+      return resolve(results);
     });
   });
 };

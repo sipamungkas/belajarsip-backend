@@ -9,14 +9,6 @@
         "ecmaVersion": 12
     },
     "rules": {
-        "indent": [
-            "error",
-            "space"
-        ],
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
         "quotes": [
             "error",
             "double"
@@ -25,6 +17,8 @@
             "error",
             "always"
         ],
-        "camelcase":["error","always"]
+        "camelcase":"error",
+        "no-unused-vars":"warn",
+        "no-case-declarations":"off"
     }
 }
