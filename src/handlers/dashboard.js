@@ -1,8 +1,8 @@
 const {
   addSubcourse,
   getCourseDay,
-  getSubcoursesByDate,
-  getSubcoursesByDateInstructor,
+  getTasksByDate,
+  getTasksByDateInstructor,
 } = require("../models/dashboard");
 const { sendError, sendResponse } = require("../helpers/response");
 const {
@@ -38,39 +38,51 @@ const addNewTask = async (req, res) => {
 
 const getSchedule = async (req, res) => {
   try {
-    const { date, user_id: userId } = req.body;
-    const todayTasks = await getSubcoursesByDate(date, userId);
-    if (!todayTasks) return sendResponse(res, false, 404, "Not found");
-    return sendResponse(
-      res,
-      true,
-      200,
-      "List of today task",
-      formatTasks(todayTasks)
-    );
+    const { date } = req.params;
+    const { user_id: userId, role_id: roleId } = req.user;
+    let todayTasks, formattedTasks;
+    let message = "List of today task for students";
+    switch (roleId) {
+      case 1:
+        message = "List of today tasks for instructor";
+        todayTasks = await getTasksByDateInstructor(date, userId);
+        formattedTasks = formatInstructorTasks(todayTasks);
+        break;
+      case 2:
+        todayTasks = await getTasksByDate(date, userId);
+        formattedTasks = formatTasks(todayTasks);
+        break;
+      default:
+        return sendResponse(res, false, 401, "Unauthorized access");
+    }
+    if (!todayTasks) {
+      return sendResponse(res, false, 404, "Today tasks Not found");
+    }
+
+    return sendResponse(res, true, 200, message, formattedTasks);
   } catch (error) {
     console.log(error);
     return sendError(res, 500);
   }
 };
 
-const getInstructorSchedule = async (req, res) => {
-  try {
-    const { date, user_id: userId } = req.body;
-    const todayTasks = await getSubcoursesByDateInstructor(date, userId);
-    console.log(todayTasks);
-    if (!todayTasks) return sendResponse(res, false, 404, "Not found");
-    return sendResponse(
-      res,
-      true,
-      200,
-      "List of today task",
-      formatInstructorTasks(todayTasks)
-    );
-  } catch (error) {
-    console.log(error);
-    return sendError(res, 500);
-  }
-};
+// const getInstructorSchedule = async (req, res) => {
+//   try {
+//     const { date, user_id: userId } = req.body;
 
-module.exports = { addNewTask, getSchedule, getInstructorSchedule };
+//     console.log(todayTasks);
+//     if (!todayTasks) return sendResponse(res, false, 404, "Not found");
+//     return sendResponse(
+//       res,
+//       true,
+//       200,
+//       "List of today task",
+//       formatInstructorTasks(todayTasks)
+//     );
+//   } catch (error) {
+//     console.log(error);
+//     return sendError(res, 500);
+//   }
+// };
+
+module.exports = { addNewTask, getSchedule };

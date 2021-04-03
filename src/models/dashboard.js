@@ -22,10 +22,10 @@ const getCourseDay = (courseId) => {
   });
 };
 
-const getSubcoursesByDate = (date, userId) => {
+const getTasksByDate = (date, userId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
-      "SELECT s.title,c.session_start,c.session_end FROM user_course uc LEFT JOIN subcourses s on uc.course_id = s.course_id " +
+      "SELECT s.title,c.session_start,c.duration FROM user_course uc LEFT JOIN subcourses s on uc.course_id = s.course_id " +
       "LEFT JOIN courses c on c.id = uc.course_id " +
       "where s.date = ? and uc.user_id = ?";
     db.query(sqlQuery, [date, userId], (error, results) => {
@@ -38,18 +38,16 @@ const getSubcoursesByDate = (date, userId) => {
   });
 };
 
-const getSubcoursesByDateInstructor = (date, userId) => {
+const getTasksByDateInstructor = (date, userId) => {
   return new Promise((resolve, reject) => {
-    // const sqlQuery =
-    //   "SELECT s.title,c.session_start,c.session_end,COUNT(uc.user_id) as student FROM user_course uc LEFT JOIN subcourses s on uc.course_id = s.course_id " +
-    //   "LEFT JOIN courses c on c.id = uc.course_id " +
-    //   "where s.date = ? and uc.user_id = ? GROUP BY uc.user_id";
     const sqlQuery =
-      "SELECT c.name, c.id as course_id, s.title, c.session_start, c.session_end, c.user_id," +
-      "(SELECT COUNT(uc.user_id) from user_course uc where uc.course_id = c.id) as student" +
+      "SELECT c.name, c.id as course_id, s.title, c.session_start, c.duration," +
+      "(SELECT COUNT(uc.user_id) from user_course uc where uc.course_id = c.id) as students" +
       " FROM courses c LEFT JOIN subcourses s on c.id = s.course_id " +
-      "where s.date = ? and c.user_id = ? ORDER BY c.session_start ASC";
+      "LEFT JOIN user_course uc2 on uc2.course_id = c.id " +
+      "where s.date = ? and uc2.user_id = ? ORDER BY c.session_start ASC";
     db.query(sqlQuery, [date, userId], (error, results) => {
+      console.log(results);
       if (error) return reject(error);
       if (results.length > 0) {
         return resolve(results);
@@ -62,6 +60,6 @@ const getSubcoursesByDateInstructor = (date, userId) => {
 module.exports = {
   addSubcourse,
   getCourseDay,
-  getSubcoursesByDate,
-  getSubcoursesByDateInstructor,
+  getTasksByDate,
+  getTasksByDateInstructor,
 };

@@ -12,7 +12,7 @@ Router.get("/", (req, res) => {
 });
 Router.use("/auth", authRouter);
 Router.use("/courses", authenticateToken, coursesRouter);
-Router.use("/dashboard", dashboardRouter);
+Router.use("/dashboard", authenticateToken, dashboardRouter);
 Router.use("/profile", profileRouter);
 Router.use("/categories", categoriesRouter);
 
