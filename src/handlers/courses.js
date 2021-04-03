@@ -305,13 +305,7 @@ const getStudentSubcourse = async (req, res) => {
       );
     }
 
-    return sendResponse(
-      res,
-      true,
-      200,
-      "List of subcourse from member",
-      memberSubcourse
-    );
+    return sendResponse(res, false, 404, "Subcourse not found");
   } catch (error) {
     console.log(error);
     return sendError(res, 500);
