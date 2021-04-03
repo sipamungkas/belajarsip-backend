@@ -450,6 +450,7 @@ const getMyClassWithLimitAndSort = async (req, res) => {
           sortBy,
           order
         );
+        message = "List of instructor courses";
         formattedMyCourses = formatMyCoursesInstructor(courses);
         break;
       case 2:
