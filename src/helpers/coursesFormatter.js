@@ -36,7 +36,6 @@ const formatMyCourse = (course) => {
     description: course.description,
     category: course.category,
     progress,
-    status: progress === 100 ? "completed" : "ongoing",
     score: course.score || 0,
   };
 

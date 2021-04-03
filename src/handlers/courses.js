@@ -17,7 +17,7 @@ const {
   courseByIdForRegistered,
   countSubcourses,
   isSubcourseOwner,
-  myClassWithLimitAndSort,
+  studentMyClassWithLimitAndSort,
 } = require("../models/courses");
 
 const { sendError, sendResponse } = require("../helpers/response");
@@ -442,20 +442,39 @@ const getMyClassWithLimitAndSort = async (req, res) => {
           : mysql.raw("DESC");
     }
     const searchValue = `%${search || ""}%`;
-    const courses = await myClassWithLimitAndSort(
-      userId,
-      sanitizedLimit,
-      searchValue,
-      sortBy,
-      order
-    );
-    return sendResponse(
-      res,
-      true,
-      200,
-      "List of Enrolled Courses",
-      formatMyCourses(courses)
-    );
+    let formattedMyCourses, courses;
+    let message = "List of Enrolled Courses";
+    let statusCode = 404;
+    let success = true;
+
+    switch (roleId) {
+      case 1:
+        courses = await studentMyClassWithLimitAndSort(
+          userId,
+          sanitizedLimit,
+          searchValue,
+          sortBy,
+          order
+        );
+        break;
+      case 2:
+        courses = await studentMyClassWithLimitAndSort(
+          userId,
+          sanitizedLimit,
+          searchValue,
+          sortBy,
+          order
+        );
+        formattedMyCourses = formatMyCourses(courses);
+        break;
+      default:
+        break;
+    }
+    if (!formattedMyCourses) {
+      success = false;
+    }
+
+    return sendResponse(res, success, statusCode, message, formattedMyCourses);
   } catch (error) {
     console.log(error);
     return sendError(res, 500);
