@@ -7,7 +7,7 @@ const { sendResponse, sendError } = require("../helpers/response");
 
 const getProfile = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { user_id: userId } = req.user;
     const profile = await getProfileById(userId);
     if (!profile) return sendResponse(res, false, 404, "Profile not found");
     return sendResponse(res, true, 200, "Profile information", profile);
@@ -19,7 +19,8 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const { userId, key } = req.params;
+    const { key } = req.params;
+    const { user_id: userId } = req.user;
     const {
       value,
       old_password: oldPassword,
