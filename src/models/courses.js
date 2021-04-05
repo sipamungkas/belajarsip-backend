@@ -350,7 +350,7 @@ const studentMyClassWithLimitAndSort = (
     }
     params.push(limit);
 
-    const sqlQuery = `SELECT (uc.user_id), (c.name), (c.description), (cat.name) as category, COUNT(us.score) as finishedClass, count(sc.course_id) as totalClass,AVG(us.score) as score from user_course uc 
+    const sqlQuery = `SELECT c.id,(uc.user_id), (c.name), (c.description), (cat.name) as category, COUNT(us.score) as finishedClass, count(sc.course_id) as totalClass,AVG(us.score) as score from user_course uc 
     left join courses c on uc.course_id = c.id 
     left join categories cat on c.category_id = cat.id 
     left join subcourses sc on uc.course_id = sc.course_id 
@@ -393,7 +393,7 @@ const instructorMyClassWithLimitAndSort = (
     }
     params.push(limit);
 
-    const sqlQuery = `SELECT c.name, c.description,(d.name) as day, (cat.name) as category, c.session_start, c.duration, COUNT(uc.user_id) as students from user_course uc 
+    const sqlQuery = `SELECT c.id,c.name, c.description,(d.name) as day, (cat.name) as category, c.session_start, c.duration, COUNT(uc.user_id) as students from user_course uc 
     left join courses c on uc.course_id = c.id 
     left join categories cat on c.category_id = cat.id 
     left join subcourses sc on uc.course_id = sc.course_id 

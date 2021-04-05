@@ -31,7 +31,8 @@ const formatSubcoursesStudents = (subcourses) => {
 const formatMyCourse = (course) => {
   const progress = (course.finishedClass / course.totalClass) * 100 || 0;
   const formattedCourse = {
-    user_id: course.user_id,
+    // user_id: course.user_id,
+    id: course.id,
     name: course.name,
     description: course.description,
     category: course.category,
@@ -48,6 +49,7 @@ const formatMyCourses = (courses) => {
 
 const formatMyCourseInstructor = (course) => {
   const formattedCourse = {
+    id: course.id,
     day: course.day,
     name: course.name,
     description: course.description,

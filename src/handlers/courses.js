@@ -58,7 +58,7 @@ const getCoursesWithSort = async (req, res) => {
     if (sortValue) {
       switch (sortValue[0].toLowerCase()) {
         case "category":
-          sortBy = mysql.raw("c.category_id");
+          sortBy = mysql.raw("cat.name");
           break;
         case "level":
           sortBy = mysql.raw("c.level_id");
@@ -413,7 +413,7 @@ const getMyClassWithLimitAndSort = async (req, res) => {
     if (sortValue) {
       switch (sortValue[0].toLowerCase()) {
         case "category":
-          sortBy = mysql.raw("category");
+          sortBy = mysql.raw("cat.name");
           break;
         case "level":
           sortBy = mysql.raw("c.level_id");
@@ -436,7 +436,6 @@ const getMyClassWithLimitAndSort = async (req, res) => {
     let message = "List of Enrolled Courses";
     let statusCode = 404;
     let success = true;
-
     switch (roleId) {
       case 1:
         courses = await instructorMyClassWithLimitAndSort(
@@ -447,6 +446,7 @@ const getMyClassWithLimitAndSort = async (req, res) => {
           order
         );
         message = "List of instructor courses";
+        statusCode = 200;
         formattedMyCourses = formatMyCoursesInstructor(courses);
         break;
       case 2:
@@ -457,6 +457,7 @@ const getMyClassWithLimitAndSort = async (req, res) => {
           sortBy,
           order
         );
+        statusCode = 200;
         formattedMyCourses = formatMyCourses(courses);
         break;
       default:

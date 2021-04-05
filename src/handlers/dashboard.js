@@ -52,7 +52,11 @@ const getSchedule = async (req, res) => {
       case 1:
         message = "List of today tasks for instructor";
         todayTasks = await getTasksByDateInstructor(date, userId);
-        formattedTasks = formatInstructorTasks(todayTasks);
+        if (!todayTasks) {
+          formattedTasks = [];
+        } else {
+          formattedTasks = formatInstructorTasks(todayTasks);
+        }
         break;
       case 2:
         todayTasks = await getTasksByDate(date, userId);
