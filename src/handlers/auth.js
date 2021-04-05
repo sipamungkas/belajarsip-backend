@@ -38,7 +38,7 @@ const userAuthentication = async (req, res) => {
       user_id: user.id,
       name: user.name,
       email: user.email,
-      role_id: user.role_id,
+      role_id: user.roleId,
     };
     const token = jwt.sign(data, jwtSecret, {
       expiresIn: "24h",

@@ -3,7 +3,7 @@ const db = require("../database/dbMySql");
 const authentication = (username) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
-      "SELECT u.avatar, u.id, u.name, u.username, u.password, r.id as role_id,r.name as role FROM users u left join roles r on u.role_id = r.id  where u.username = ? or u.email = ?";
+      "SELECT u.avatar, u.id, u.name, u.username, u.password, r.id as roleId,r.name as role FROM users u left join roles r on u.role_id = r.id  where u.username = ? or u.email = ?";
     // const columns = ["u.id", "u.username", "u.password", "u.name", "r.name"];
     db.query(sqlQuery, [username, username], function (error, results) {
       if (error) return reject(error);
