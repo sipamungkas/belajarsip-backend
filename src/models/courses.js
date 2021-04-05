@@ -8,7 +8,7 @@ const coursesWithLevelAndCategory = (
 ) => {
   return new Promise((resolve, reject) => {
     const findAllQuery =
-      "SELECT c.*, l.name as level, cat.name as category FROM courses c left join course_levels l on c.level_id = l.id" +
+      "SELECT c.*, l.name as level, cat.name as category FROM courses c left join levels l on c.level_id = l.id" +
       " left join categories cat on c.category_id = cat.id where c.name like ?";
     const findByCategoryIdQuery = "and c.category_id = ?";
     const findByLevelIdQuery = " and c.level_id = ?";
@@ -34,7 +34,7 @@ const coursesWithSort = (searchValue, sortBy, order) => {
   return new Promise((resolve, reject) => {
     const sortByQuery = "ORDER BY ? ?";
     const sqlQuery =
-      "SELECT c.*, l.name as level, cat.name as category FROM courses c left join course_levels l on c.level_id = l.id" +
+      "SELECT c.*, l.name as level, cat.name as category FROM courses c left join levels l on c.level_id = l.id" +
       ` left join categories cat on c.category_id = cat.id where c.name like ? ${
         sortBy && order ? sortByQuery : ""
       }`;
@@ -50,7 +50,7 @@ const coursesWithSort = (searchValue, sortBy, order) => {
 const courseById = (courseId) => {
   return new Promise((resolve, reject) => {
     const findByIdQuery =
-      "SELECT c.*, l.name as level, cat.name as category FROM courses c left join course_levels l on c.level_id = l.id" +
+      "SELECT c.*, l.name as level, cat.name as category FROM courses c left join levels l on c.level_id = l.id" +
       " left join categories cat on c.category_id = cat.id left join subcourses s on s.course_id = c.id where c.id = ? limit 1";
     db.query(findByIdQuery, [courseId], (error, results) => {
       if (error) return reject(error);
@@ -69,7 +69,7 @@ const courseByIdForRegistered = (courseId, userId) => {
     const findByIdQuery =
       "SELECT c.*, l.name as level, cat.name as category," +
       "AVG(us.score) as score, count(s.id) as subcourses_done " +
-      "FROM courses c left join course_levels l on c.level_id = l.id " +
+      "FROM courses c left join levels l on c.level_id = l.id " +
       "left join categories cat on c.category_id = cat.id left join subcourses s on s.course_id = c.id " +
       "LEFT JOIN user_subcourse us on us.subcourse_id = s.id " +
       "where us.user_id = ? and c.id = ? limit 1";
