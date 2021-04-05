@@ -19,6 +19,7 @@
 - MySql
 - Bcrypt
 - JWT
+- Express
 
 ## Installation
 
