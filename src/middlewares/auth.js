@@ -12,7 +12,7 @@ const authenticateToken = async (req, res, next) => {
     const bearer = authorization.split(" ");
     const token = bearer[1];
     const user = jwt.verify(token, jwtSecret);
-    if (!user) return sendResponse(res, false, 401, "Unauthorized Access");
+    if (!user) return sendResponse(res, false, 403, "Unauthorized Access");
     req.user = user;
     return next();
   } catch (error) {
