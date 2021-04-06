@@ -10,6 +10,7 @@ const {
   getCoursesWithSort,
   getMyClassWithLimitAndSort,
 } = require("../handlers/courses");
+const { isInstructor } = require("../middlewares/auth");
 
 const Router = require("express").Router();
 
@@ -18,12 +19,17 @@ Router.get("/my-class", getMyClassWithLimitAndSort);
 Router.get("/:courseId", getCourseById);
 Router.post("/register", registerCourseById);
 Router.get("/:courseId/subcourses", getSubcourses);
-Router.get("/:courseId/students", getCourseStudents);
-Router.get("/:courseId/students/:studentId", getStudentSubcourse);
-Router.post("/:courseId/students", createStudentScore);
-Router.patch("/:courseId/students/:studentId", updateStudentScore);
+Router.get("/:courseId/students", isInstructor, getCourseStudents);
+Router.get("/:courseId/students/:studentId", isInstructor, getStudentSubcourse);
+Router.post("/:courseId/students", isInstructor, createStudentScore);
+Router.patch(
+  "/:courseId/students/:studentId",
+  isInstructor,
+  updateStudentScore
+);
 Router.delete(
   "/:courseId/students/:studentId/:subcourseId",
+  isInstructor,
   deleteStudentScore
 );
 
