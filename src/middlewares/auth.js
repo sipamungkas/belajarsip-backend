@@ -16,7 +16,7 @@ const authenticateToken = async (req, res, next) => {
     req.user = user;
     return next();
   } catch (error) {
-    console.log(error);
+    console.log(error.name);
     return sendError(res, error);
   }
 };
@@ -28,11 +28,10 @@ const isInstructor = (req, res, next) => {
     }
     const { user } = req;
     if (user.role_id !== 1) {
-      if (!user) return sendResponse(res, false, 401, "Unauthorized Access");
+      if (!user) return sendResponse(res, false, 403, "Forbidden Access");
     }
     return next();
   } catch (error) {
-    console.log(error);
     return sendError(res, error);
   }
 };
@@ -44,11 +43,10 @@ const isStudent = (req, res, next) => {
     }
     const { user } = req;
     if (user.role_id !== 2) {
-      if (!user) return sendResponse(res, false, 401, "Unauthorized Access");
+      if (!user) return sendResponse(res, false, 401, "Forbidden Access");
     }
     return next();
   } catch (error) {
-    console.log(error);
     return sendError(res, error);
   }
 };

@@ -17,6 +17,7 @@ const jwtSecret = process.env.JWT_SECRET;
 const saltRounds = Number(process.env.SALT_ROUNDS);
 
 const userAuthentication = async (req, res) => {
+  console.log(typeof process.env.TOKEN_ISSUER);
   try {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -41,7 +42,8 @@ const userAuthentication = async (req, res) => {
       role_id: user.roleId,
     };
     const token = jwt.sign(data, jwtSecret, {
-      expiresIn: "24h",
+      expiresIn: process.env.TOKEN_DURATION,
+      issuer: process.env.TOKEN_ISSUER,
     });
     return sendResponse(
       res,
