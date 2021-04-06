@@ -6,6 +6,7 @@
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Available Scripts](#available-scripts)
+- [API Documentation](#api-documentation)
 
 ## Description
 
@@ -72,3 +73,7 @@ npm dev
 
 `start` to run the program on production mode
 `dev` to run the program on development mode
+
+## API Documentation
+
+[Belajarsip Backend on Postman](https://documenter.getpostman.com/view/6708077/TzCQamFa)
