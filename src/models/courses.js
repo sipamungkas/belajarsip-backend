@@ -327,17 +327,6 @@ const studentMyClassWithLimitAndSort = (
     sqlQuery.push("LIMIT ? OFFSET ?");
     values.push(limit, offset);
 
-    // const sqlQuery = `SELECT c.id,(uc.user_id), (c.name), (c.description), (cat.name) as category, COUNT(us.score) as finishedClass, count(sc.course_id) as totalClass,AVG(us.score) as score from user_course uc
-    // left join courses c on uc.course_id = c.id
-    // left join categories cat on c.category_id = cat.id
-    // left join subcourses sc on uc.course_id = sc.course_id
-    // left join user_subcourse us on sc.id = us.subcourse_id
-    // where uc.user_id = ? ${
-    //   searchValue ? searchQuery : ""
-    // } GROUP BY uc.user_id,uc.course_id ${
-    //   sortBy && order ? sortByQuery : ""
-    // } ${limitQuery}`;
-
     db.query(sqlQuery.join(" "), values, (error, results) => {
       if (error) return reject(error);
       const countSql =
@@ -353,44 +342,38 @@ const studentMyClassWithLimitAndSort = (
 
 const instructorMyClassWithLimitAndSort = (
   userId,
-  limit,
   searchValue,
   sortBy,
-  order
+  order,
+  limit,
+  offset
 ) => {
   return new Promise((resolve, reject) => {
-    const limitQuery = limit > 0 ? "limit ?" : "";
-    const searchQuery = " and c.name like ?";
-    const params = [userId];
-    const sortByQuery = " ORDER BY ? ?";
-    if (searchValue) {
-      params.push(searchValue);
-    }
+    let total = 0;
+    const sqlQuery = [
+      "SELECT c.id, c.name, c.description, d.name as day, cat.name as category, c.session_start, c.duration, (SELECT COUNT(uc2.user_id) - 1 from user_course uc2 where uc2.course_id = c.id ) as students from user_course uc",
+      "left join courses c on uc.course_id = c.id",
+      "left join categories cat on c.category_id = cat.id",
+      "left join days d on d.id = c.day_id",
+      "where uc.user_id = ? and c.name like ?",
+    ];
+    const values = [userId, searchValue];
     if (sortBy && order) {
-      params.push(sortBy, order);
+      sqlQuery.push("ORDER BY ? ?");
+      values.push(sortBy, order);
     }
-    params.push(limit);
+    sqlQuery.push("LIMIT ? OFFSET ?");
+    values.push(limit, offset);
 
-    const sqlQuery = `SELECT c.id,c.name, c.description,(d.name) as day, (cat.name) as category, c.session_start, c.duration, COUNT(uc.user_id) as students from user_course uc 
-    left join courses c on uc.course_id = c.id 
-    left join categories cat on c.category_id = cat.id 
-    left join subcourses sc on uc.course_id = sc.course_id 
-    left join user_subcourse us on sc.id = us.subcourse_id
-    left join days d on d.id = c.day_id
-    where uc.user_id = ? ${
-      searchValue ? searchQuery : ""
-    } GROUP BY uc.user_id,uc.course_id ${
-      sortBy && order ? sortByQuery : ""
-    } ${limitQuery}`;
-
-    db.query(sqlQuery, params, (error, results) => {
+    db.query(sqlQuery.join(" "), values, (error, results) => {
       if (error) return reject(error);
-
-      if (results.length > 0) {
-        return resolve(results);
-      }
-
-      return resolve(false);
+      const countSql =
+        "SELECT count(uc.user_id) AS total FROM user_course uc where uc.user_id = ?";
+      db.query(countSql, [userId], (countErr, countResults) => {
+        if (countErr) return reject(countErr);
+        total = countResults[0].total;
+        return resolve({ data: results, total });
+      });
     });
   });
 };

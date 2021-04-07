@@ -486,7 +486,7 @@ const getMyClassWithLimitAndSort = async (req, res) => {
         );
         message = "List of instructor courses";
         statusCode = 200;
-        formattedMyCourses = formatMyCoursesInstructor(courses);
+        formattedMyCourses = formatMyCoursesInstructor(courses.data);
         break;
       case 2:
         courses = await studentMyClassWithLimitAndSort(
