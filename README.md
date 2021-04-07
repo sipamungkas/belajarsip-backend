@@ -4,6 +4,7 @@
 
 - [Description](#description)
 - [Requirements](#requirements)
+- [ERD](#erd)
 - [Installation](#installation)
 - [Available Scripts](#available-scripts)
 - [API Documentation](#api-documentation)
@@ -21,6 +22,12 @@
 - Bcrypt
 - JWT
 - Express
+
+## ERD
+
+Belajarsip ED
+
+![Belajarsip ERD](docs/belajarsip_erd_v3.png)
 
 ## Installation
 
