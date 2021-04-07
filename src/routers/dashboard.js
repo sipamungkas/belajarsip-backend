@@ -1,7 +1,7 @@
 const Router = require("express").Router();
 const { addNewTask, getSchedule } = require("../handlers/dashboard");
 
-const { isInstructor } = require("../middlewares/auth");
+const { isInstructor } = require("../middlewares/authorization");
 
 Router.post("/", isInstructor, addNewTask);
 Router.get("/:date", getSchedule);

@@ -4,7 +4,7 @@ const coursesRouter = require("./courses");
 const dashboardRouter = require("./dashboard");
 const profileRouter = require("./profile");
 const authRouter = require("./auth");
-const { authenticateToken } = require("../middlewares/auth");
+const { authenticateToken } = require("../middlewares/authentication");
 const categoriesRouter = require("./categories");
 const levelsRouter = require("./levels");
 

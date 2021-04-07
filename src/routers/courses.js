@@ -10,11 +10,11 @@ const {
   getCoursesWithSort,
   getMyClassWithLimitAndSort,
 } = require("../handlers/courses");
-const { isInstructor } = require("../middlewares/auth");
+const { isInstructor, isStudent } = require("../middlewares/authorization");
 
 const Router = require("express").Router();
 
-Router.get("/", getCoursesWithSort);
+Router.get("/", isStudent, getCoursesWithSort);
 Router.get("/my-class", getMyClassWithLimitAndSort);
 Router.get("/:courseId", getCourseById);
 Router.post("/register", registerCourseById);
