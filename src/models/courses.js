@@ -301,83 +301,52 @@ const registeredCourses = (userId) => {
   });
 };
 
-// const myClassWithLimit = (userId, limit, categoryId, searchValue) => {
-//   return new Promise((resolve, reject) => {
-//     const limitQuery = limit > 0 ? "limit ?" : "";
-//     const searchQuery = "and c.name like ?";
-//     const categoryQuery = "and cat.id = ?";
-//     const params = [userId];
-//     if (searchValue) {
-//       params.push(searchValue);
-//     }
-//     if (categoryId) {
-//       params.push(categoryId);
-//     }
-//     params.push(limit);
-
-//     const sqlQuery = `SELECT (uc.user_id), (c.name), (c.description), (cat.name) as category, COUNT(us.score) as finishedClass, count(sc.course_id) as totalClass,AVG(us.score) as score from user_course uc
-//     left join courses c on uc.course_id = c.id
-//     left join categories cat on c.category_id = cat.id
-//     left join subcourses sc on uc.course_id = sc.course_id
-//     left join user_subcourse us on sc.id = us.subcourse_id
-//     where uc.user_id = ? ${searchValue ? searchQuery : ""} ${
-//       categoryId ? categoryQuery : ""
-//     }
-//     GROUP BY uc.user_id,uc.course_id ${limitQuery}`;
-//     console.log(searchValue, sqlQuery);
-//     db.query(sqlQuery, params, (error, results) => {
-//       if (error) return reject(error);
-
-//       console.log(results);
-
-//       if (results.length > 0) {
-//         return resolve(results);
-//       }
-
-//       return resolve(false);
-//     });
-//   });
-// };
-
 const studentMyClassWithLimitAndSort = (
   userId,
-  limit,
   searchValue,
   sortBy,
-  order
+  order,
+  limit,
+  offset
 ) => {
   return new Promise((resolve, reject) => {
-    const limitQuery = limit > 0 ? "limit ?" : "";
-    const searchQuery = " and c.name like ?";
-    const params = [userId];
-    const sortByQuery = " ORDER BY ? ?";
-    if (searchValue) {
-      params.push(searchValue);
-    }
+    let total = 0;
+    const sqlQuery = [
+      "SELECT uc.user_id, uc.course_id , c.name, c.description, cat.name as category,",
+      "(SELECT COUNT(us.score) FROM user_subcourse us join subcourses s2 on s2.id = us.subcourse_id where us.user_id = uc.user_id and s2.course_id = c.id) as finishedClass,",
+      "(SELECT count(course_id) FROM subcourses s where s.course_id = c.id ) as totalClass,",
+      "(SELECT AVG(us.score) FROM user_subcourse us where us.user_id = uc.user_id) as score",
+      "from user_course uc left join courses c on uc.course_id = c.id left join categories cat on c.category_id = cat.id",
+      "where uc.user_id = ? AND c.name LIKE ?",
+    ];
+    const values = [userId, searchValue];
     if (sortBy && order) {
-      params.push(sortBy, order);
+      sqlQuery.push("ORDER BY ? ?");
+      values.push(sortBy, order);
     }
-    params.push(limit);
+    sqlQuery.push("LIMIT ? OFFSET ?");
+    values.push(limit, offset);
 
-    const sqlQuery = `SELECT c.id,(uc.user_id), (c.name), (c.description), (cat.name) as category, COUNT(us.score) as finishedClass, count(sc.course_id) as totalClass,AVG(us.score) as score from user_course uc 
-    left join courses c on uc.course_id = c.id 
-    left join categories cat on c.category_id = cat.id 
-    left join subcourses sc on uc.course_id = sc.course_id 
-    left join user_subcourse us on sc.id = us.subcourse_id
-    where uc.user_id = ? ${
-      searchValue ? searchQuery : ""
-    } GROUP BY uc.user_id,uc.course_id ${
-      sortBy && order ? sortByQuery : ""
-    } ${limitQuery}`;
+    // const sqlQuery = `SELECT c.id,(uc.user_id), (c.name), (c.description), (cat.name) as category, COUNT(us.score) as finishedClass, count(sc.course_id) as totalClass,AVG(us.score) as score from user_course uc
+    // left join courses c on uc.course_id = c.id
+    // left join categories cat on c.category_id = cat.id
+    // left join subcourses sc on uc.course_id = sc.course_id
+    // left join user_subcourse us on sc.id = us.subcourse_id
+    // where uc.user_id = ? ${
+    //   searchValue ? searchQuery : ""
+    // } GROUP BY uc.user_id,uc.course_id ${
+    //   sortBy && order ? sortByQuery : ""
+    // } ${limitQuery}`;
 
-    db.query(sqlQuery, params, (error, results) => {
+    db.query(sqlQuery.join(" "), values, (error, results) => {
       if (error) return reject(error);
-
-      if (results.length > 0) {
-        return resolve(results);
-      }
-
-      return resolve(false);
+      const countSql =
+        "SELECT count(uc.user_id) AS total FROM user_course uc where uc.user_id = ?";
+      db.query(countSql, [userId], (countErr, countResults) => {
+        if (countErr) return reject(countErr);
+        total = countResults[0].total;
+        return resolve({ data: results, total });
+      });
     });
   });
 };

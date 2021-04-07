@@ -30,7 +30,9 @@ const sendResponseWithPagination = (
 
 const sendError = (res, status, error) => {
   const errorMessage =
-    error instanceof jwt.JsonWebTokenError ? error.message : error.code;
+    error instanceof jwt.JsonWebTokenError
+      ? error.message
+      : error?.code || error;
 
   const response = {
     success: false,

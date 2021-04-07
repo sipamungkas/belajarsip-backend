@@ -93,7 +93,7 @@ const getCoursesWithSort = async (req, res) => {
       offset,
       limitPerPage
     );
-    console.log(courses.total, pageNumber, limitPerPage, pageNumber === 1);
+
     const totalPage = Math.ceil(courses.total / limitPerPage);
     const info = {
       total: courses.total,
@@ -436,11 +436,8 @@ const deleteStudentScore = async (req, res) => {
 const getMyClassWithLimitAndSort = async (req, res) => {
   try {
     const { user_id: userId, role_id: roleId } = req.user;
-    const { limit, search, sort } = req.query;
-    const sanitizedLimit =
-      typeof parseInt(limit) === "number" && parseInt(limit) > 0
-        ? parseInt(limit)
-        : 0;
+    const { baseUrl } = req;
+    const { search, sort, page, limit } = req.query;
 
     const sortValue = sort?.split("-") || null;
     let sortBy = null;
@@ -467,7 +464,12 @@ const getMyClassWithLimitAndSort = async (req, res) => {
           ? mysql.raw("ASC")
           : mysql.raw("DESC");
     }
+
     const searchValue = `%${search || ""}%`;
+    const pageNumber = Number(page) || 1;
+    const limitPerPage = Number(limit) || 3;
+    const offset = (pageNumber - 1) * limitPerPage;
+
     let formattedMyCourses, courses;
     let message = "List of Enrolled Courses";
     let statusCode = 404;
@@ -476,10 +478,11 @@ const getMyClassWithLimitAndSort = async (req, res) => {
       case 1:
         courses = await instructorMyClassWithLimitAndSort(
           userId,
-          sanitizedLimit,
           searchValue,
           sortBy,
-          order
+          order,
+          limitPerPage,
+          offset
         );
         message = "List of instructor courses";
         statusCode = 200;
@@ -488,25 +491,45 @@ const getMyClassWithLimitAndSort = async (req, res) => {
       case 2:
         courses = await studentMyClassWithLimitAndSort(
           userId,
-          sanitizedLimit,
           searchValue,
           sortBy,
-          order
+          order,
+          limitPerPage,
+          offset
         );
         statusCode = 200;
-        formattedMyCourses = formatMyCourses(courses);
+        formattedMyCourses = formatMyCourses(courses.data);
         break;
       default:
         break;
     }
-    if (!formattedMyCourses) {
-      success = false;
-    }
 
-    return sendResponse(res, success, statusCode, message, formattedMyCourses);
+    const totalPage = Math.ceil(courses.total / limitPerPage);
+    const info = {
+      total: courses.total,
+      current_page: pageNumber,
+      total_page: totalPage,
+      next:
+        pageNumber === totalPage
+          ? null
+          : `${baseUrl}?page=${pageNumber + 1}&limit=${limitPerPage}`,
+      prev:
+        pageNumber === 1
+          ? null
+          : `${baseUrl}?page=${pageNumber - 1}&limit=${limitPerPage}`,
+    };
+
+    return sendResponseWithPagination(
+      res,
+      success,
+      statusCode,
+      message,
+      formattedMyCourses,
+      info
+    );
   } catch (error) {
     console.log(error);
-    return sendError(res, 500);
+    return sendError(res, 500, error);
   }
 };
 
