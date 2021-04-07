@@ -96,7 +96,7 @@ const courseByIdForRegistered = (courseId, userId) => {
 
 const registerToCourseId = (courseId, userId) => {
   return new Promise((resolve, reject) => {
-    const sqlQuery = "INSERT INTO user_course (user_id,course_id) values (?,?)";
+    const sqlQuery = "INSERT INTO user_course (course_id,user_id) values (?,?)";
     db.query(sqlQuery, [courseId, userId], (error, results) => {
       if (error) return reject(error);
       if (results.affectedRows > 0) {

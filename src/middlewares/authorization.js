@@ -21,7 +21,7 @@ const isStudent = (req, res, next) => {
       return sendResponse(res, false, 401, "Unauthorized Access");
     }
     const { user } = req;
-    console.log(user);
+
     if (user.role_id !== 2) {
       return sendResponse(res, false, 403, "Forbidden Access");
     }
