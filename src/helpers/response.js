@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const mysql = require("mysql");
 
 const sendResponse = (res, success, status, message, data) => {
   const response = {

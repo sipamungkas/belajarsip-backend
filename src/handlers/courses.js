@@ -20,7 +20,11 @@ const {
   instructorMyClassWithLimitAndSort,
 } = require("../models/courses");
 
-const { sendError, sendResponse } = require("../helpers/response");
+const {
+  sendError,
+  sendResponse,
+  sendResponseWithPagination,
+} = require("../helpers/response");
 const {
   formatMembers,
   formatSubcoursesStudents,
@@ -50,7 +54,8 @@ const getCourses = async (req, res) => {
 
 const getCoursesWithSort = async (req, res) => {
   try {
-    const { search, sort } = req.query;
+    const { baseUrl } = req;
+    const { search, sort, page, limit } = req.query;
     const sortValue = sort?.split("-") || null;
     let sortBy = null;
     let order = null;
@@ -78,12 +83,43 @@ const getCoursesWithSort = async (req, res) => {
     }
     // console.log(sortValue, sortBy.toSqlString(), order.toSqlString());
     const searchValue = `%${search || ""}%`;
-
-    const courses = await coursesWithSort(searchValue, sortBy, order);
-    return sendResponse(res, true, 200, "List of Available Courses", courses);
+    const pageNumber = Number(page) || 1;
+    const limitPerPage = Number(limit) || 3;
+    const offset = (pageNumber - 1) * limitPerPage;
+    const courses = await coursesWithSort(
+      searchValue,
+      sortBy,
+      order,
+      offset,
+      limitPerPage
+    );
+    console.log(courses.total, pageNumber, limitPerPage, pageNumber === 1);
+    const totalPage = Math.ceil(courses.total / limitPerPage);
+    const info = {
+      total: courses.total,
+      current_page: pageNumber,
+      total_page: totalPage,
+      next:
+        pageNumber === totalPage
+          ? null
+          : `${baseUrl}?page=${pageNumber + 1}&limit=${limitPerPage}`,
+      prev:
+        pageNumber === 1
+          ? null
+          : `${baseUrl}?page=${pageNumber - 1}&limit=${limitPerPage}`,
+    };
+    return sendResponseWithPagination(
+      res,
+      true,
+      200,
+      "List of Available Courses",
+      courses.data,
+      info
+    );
   } catch (error) {
     console.log(error);
-    return sendError(res, 500);
+
+    return sendError(res, 500, error);
   }
 };
 

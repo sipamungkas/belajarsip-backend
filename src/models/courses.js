@@ -30,19 +30,28 @@ const coursesWithLevelAndCategory = (
   });
 };
 
-const coursesWithSort = (searchValue, sortBy, order) => {
+const coursesWithSort = (searchValue, sortBy, order, offset, limit) => {
   return new Promise((resolve, reject) => {
-    const sortByQuery = "ORDER BY ? ?";
-    const sqlQuery =
-      "SELECT c.*, l.name as level, cat.name as category FROM courses c left join levels l on c.level_id = l.id" +
-      ` left join categories cat on c.category_id = cat.id where c.name like ? ${
-        sortBy && order ? sortByQuery : ""
-      }`;
+    const values = [searchValue];
+    const sqlQuery = [
+      "SELECT c.*, l.name as level, cat.name as category FROM courses c left join levels l on c.level_id = l.id left join categories cat on c.category_id = cat.id where c.name like ?",
+    ];
+    if (sortBy && order) {
+      sqlQuery.push("ORDER BY ? ?");
+      values.push(sortBy, order);
+    }
+    sqlQuery.push("LIMIT ? OFFSET ?");
+    values.push(limit, offset);
+    let total = 0;
 
-    db.query(sqlQuery, [searchValue, sortBy, order], (error, results) => {
+    db.query(sqlQuery.join(" "), values, (error, results) => {
       if (error) return reject(error);
-
-      return resolve(results);
+      const countSql = "SELECT count(id) as total FROM courses";
+      db.query(countSql, (countErr, countResults) => {
+        if (countErr) return reject(countErr);
+        total = countResults[0].total;
+        return resolve({ data: results, total });
+      });
     });
   });
 };
