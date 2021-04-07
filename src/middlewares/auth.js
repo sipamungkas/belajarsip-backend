@@ -17,7 +17,7 @@ const authenticateToken = async (req, res, next) => {
     return next();
   } catch (error) {
     console.log(error.name);
-    return sendError(res, error);
+    return sendError(res, 401, error);
   }
 };
 
