@@ -33,4 +33,30 @@ const userPassword = (userId) => {
   });
 };
 
-module.exports = { getProfileById, updateProfileByIdWithParams, userPassword };
+const updateUserAvatar = (pathFile, userId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = "UPDATE users SET avatar=? WHERE id=?";
+    db.query(sqlQuery, [pathFile, userId], (error, results) => {
+      if (error) return reject(error);
+      return resolve(results);
+    });
+  });
+};
+
+const getAvatarPath = (userId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = "SELECT avatar FROM users WHERE id = ? LIMIT 1";
+    db.query(sqlQuery, [userId], (error, results) => {
+      if (error) return reject(error);
+      resolve(results);
+    });
+  });
+};
+
+module.exports = {
+  getProfileById,
+  updateProfileByIdWithParams,
+  userPassword,
+  updateUserAvatar,
+  getAvatarPath,
+};

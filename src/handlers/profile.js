@@ -1,7 +1,11 @@
+const fs = require("fs-extra");
+const path = require("path");
 const {
   getProfileById,
   userPassword,
   updateProfileByIdWithParams,
+  updateUserAvatar,
+  getAvatarPath,
 } = require("../models/profile");
 const { sendResponse, sendError } = require("../helpers/response");
 
@@ -59,4 +63,34 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = { getProfile, updateProfile };
+const updateAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return sendResponse(res, false, 500, "Failed to update avatar");
+    }
+    const { user_id: userId } = req.user;
+    const oldAvatar = await getAvatarPath(userId);
+    if (oldAvatar.length > 0) {
+      const pathFile = path.join(
+        __dirname,
+        `../../public/images/${oldAvatar[0].avatar}`
+      );
+      const exists = await fs.pathExists(pathFile);
+      if (exists) {
+        fs.unlink(pathFile);
+      }
+    }
+    const pathFile = `avatars/${req.file.filename}`;
+
+    const isUpdate = await updateUserAvatar(pathFile, userId);
+    if (isUpdate.affectedRows < 1) {
+      return sendResponse(res, false, 500, "Failed to update avatar");
+    }
+
+    return sendResponse(res, true, 200, "Avatar Updated");
+  } catch (error) {
+    return sendError(res, 500, error);
+  }
+};
+
+module.exports = { getProfile, updateProfile, updateAvatar };
