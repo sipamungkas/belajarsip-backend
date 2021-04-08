@@ -1,5 +1,6 @@
 const multer = require("multer");
 const path = require("path");
+const { sendError } = require("../helpers/response");
 
 const avatarStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -25,7 +26,19 @@ const fileFilter = (req, file, cb) => {
 
 const uploadAvatar = multer({
   storage: avatarStorage,
+  limits: {
+    fileSize: 2 * 10 ** 6,
+  },
   fileFilter,
 });
 
-module.exports = { uploadAvatar };
+const errorMulterHandler = (uploadFunction) => {
+  return (req, res, next) => {
+    uploadFunction(req, res, function (err) {
+      if (err) return sendError(res, 500, err);
+      next();
+    });
+  };
+};
+
+module.exports = { uploadAvatar, errorMulterHandler };

@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
 
 const sendResponse = (res, success, status, message, data) => {
   const response = {
@@ -29,16 +30,25 @@ const sendResponseWithPagination = (
 };
 
 const sendError = (res, status, error) => {
-  const errorMessage =
-    error instanceof jwt.JsonWebTokenError
-      ? error.message
-      : error?.code || error;
+  let statusCode = null;
+  let errorMessage = error?.code || error;
+  if (error instanceof multer.MulterError) {
+    errorMessage = "Unprocessable entitry";
+    if (error.code === "LIMIT_FILE_SIZE") {
+      statusCode = 413;
+      errorMessage = error.message;
+    }
+  }
+
+  if (error instanceof jwt.JsonWebTokenError) {
+    errorMessage = error.message;
+  }
 
   const response = {
     success: false,
     error: errorMessage,
   };
-  res.status(status).json(response);
+  res.status(statusCode || status).json(response);
 };
 
 module.exports = { sendResponse, sendError, sendResponseWithPagination };
