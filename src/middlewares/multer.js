@@ -20,7 +20,7 @@ const fileFilter = (req, file, cb) => {
   const allowedExt = /jpg|png|jpeg|svg|gif/i;
   const isAllowed = allowedExt.test(path.extname(file.originalname));
   console.log(path.extname(file.originalname));
-  if (!isAllowed) return cb(new Error("Error: Images only"));
+  if (!isAllowed) return cb(new Error("Images only"));
   cb(null, true);
 };
 

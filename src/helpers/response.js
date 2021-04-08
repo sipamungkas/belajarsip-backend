@@ -31,6 +31,10 @@ const sendResponseWithPagination = (
 
 const sendError = (res, status, error) => {
   let statusCode = null;
+  console.log(
+    error instanceof multer.MulterError,
+    error?.message === "Error: Images only"
+  );
   let errorMessage = error?.code || error;
   if (error instanceof multer.MulterError) {
     errorMessage = "Unprocessable entitry";
@@ -44,10 +48,16 @@ const sendError = (res, status, error) => {
     errorMessage = error.message;
   }
 
+  if (error?.message === "Images only") {
+    statusCode = 415;
+    errorMessage = "Invalid Image type";
+  }
+
   const response = {
     success: false,
     error: errorMessage,
   };
+
   res.status(statusCode || status).json(response);
 };
 
