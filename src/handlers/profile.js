@@ -93,7 +93,6 @@ const updateProfile = async (req, res) => {
     if (isUpdated) return sendResponse(res, true, 200, "profile update");
     return sendResponse(res, false, 200, "Failed to update profile");
   } catch (error) {
-    console.log(error);
     return sendError(res, 500, error);
   }
 };

@@ -1,5 +1,4 @@
 const {
-  coursesWithLevelAndCategory,
   coursesWithSort,
   courseById,
   registerToCourseId,
@@ -33,24 +32,6 @@ const {
 } = require("../helpers/coursesFormatter");
 
 const mysql = require("mysql");
-
-// deprecated for this week
-const getCourses = async (req, res) => {
-  try {
-    const { search, category, level, price } = req.query;
-    const searchValue = `%${search || ""}%`;
-    const courses = await coursesWithLevelAndCategory(
-      searchValue,
-      category,
-      level,
-      price
-    );
-    return sendResponse(res, true, 200, "List of Available Courses", courses);
-  } catch (error) {
-    console.log(error);
-    return sendError(res, 500);
-  }
-};
 
 const getCoursesWithSort = async (req, res) => {
   try {
@@ -184,8 +165,7 @@ const getCourseById = async (req, res) => {
     }
     return sendResponse(res, success, statusCode, message, course);
   } catch (error) {
-    console.log(error);
-    return sendError(res, error);
+    return sendError(res, 500, error);
   }
 };
 
@@ -272,8 +252,7 @@ const getSubcourses = async (req, res) => {
       // break;
     }
   } catch (error) {
-    console.log(error);
-    return sendError(res, error);
+    return sendError(res, 500, error);
   }
 };
 
@@ -373,8 +352,7 @@ const createStudentScore = async (req, res) => {
       "Create new score for student successfully"
     );
   } catch (error) {
-    console.log(error);
-    return sendError(res, error);
+    return sendError(res, 500, error);
   }
 };
 
@@ -406,8 +384,7 @@ const updateStudentScore = async (req, res) => {
     await updateScore(subcourseId, studentId, score);
     return sendResponse(res, true, 201, "Update student's score success");
   } catch (error) {
-    console.log(error);
-    return sendError(res, error);
+    return sendError(res, 500, error);
   }
 };
 
@@ -428,8 +405,7 @@ const deleteStudentScore = async (req, res) => {
     await deleteScore(subcourseId, studentId);
     return sendResponse(res, true, 204, "Delete student's score success");
   } catch (error) {
-    console.log(error);
-    return sendError(res, error);
+    return sendError(res, 500, error);
   }
 };
 
@@ -528,13 +504,11 @@ const getMyClassWithLimitAndSort = async (req, res) => {
       info
     );
   } catch (error) {
-    console.log(error);
     return sendError(res, 500, error);
   }
 };
 
 module.exports = {
-  getCourses,
   getCoursesWithSort,
   getCourseById,
   registerCourseById,

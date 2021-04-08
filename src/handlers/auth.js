@@ -53,8 +53,7 @@ const userAuthentication = async (req, res) => {
       formatUserAuthentication(user, token)
     );
   } catch (error) {
-    console.log(error);
-    return sendError(res, error);
+    return sendError(res, 500, error);
   }
 };
 
@@ -83,7 +82,7 @@ const createNewStudent = async (req, res) => {
     await createStudent(newStudent);
     return sendResponse(res, true, 201, "Account created!");
   } catch (error) {
-    return sendError(res, error);
+    return sendError(res, 500, error);
   }
 };
 
@@ -108,8 +107,7 @@ const sendOTP = async (req, res) => {
       "An email has been sent to your email address containing an activation link. Please click on the link to activate your account. If you do not click the link your account will remain inactive and you will not receive further emails. If you do not receive the email within a few minutes, please check your spam folder."
     );
   } catch (error) {
-    console.log(error);
-    return sendError(res, error);
+    return sendError(res, 500, error);
   }
 };
 
@@ -135,8 +133,7 @@ const otpVerification = async (req, res) => {
 
     return sendResponse(res, false, 401, "Invalid Token");
   } catch (error) {
-    console.log(error);
-    return sendError(res, error);
+    return sendError(res, 500, error);
   }
 };
 

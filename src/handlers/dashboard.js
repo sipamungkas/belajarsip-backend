@@ -37,8 +37,7 @@ const addNewTask = async (req, res) => {
     }
     return sendResponse(res, false, 200, "Failed to create new task");
   } catch (error) {
-    console.log(error);
-    return sendError(res, 500);
+    return sendError(res, 500, error);
   }
 };
 
@@ -71,8 +70,7 @@ const getSchedule = async (req, res) => {
 
     return sendResponse(res, true, 200, message, formattedTasks);
   } catch (error) {
-    console.log(error);
-    return sendError(res, 500);
+    return sendError(res, 500, error);
   }
 };
 
