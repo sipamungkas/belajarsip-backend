@@ -12,12 +12,12 @@ const {
   newPassword,
 } = require("../models/auth");
 const crypto = require("crypto");
+const client = require("../database/dbRedis");
 
 const jwtSecret = process.env.JWT_SECRET;
 const saltRounds = Number(process.env.SALT_ROUNDS);
 
 const userAuthentication = async (req, res) => {
-  console.log(typeof process.env.TOKEN_ISSUER);
   try {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -52,6 +52,21 @@ const userAuthentication = async (req, res) => {
       "Login success",
       formatUserAuthentication(user, token)
     );
+  } catch (error) {
+    return sendError(res, 500, error);
+  }
+};
+
+const userLogout = (req, res) => {
+  try {
+    const { user } = req;
+    const duration = (new Date(user.exp * 1000) - new Date(Date.now())) / 1000;
+    client.setex(`blacklist:${user.user_id}`, duration, true, (err) => {
+      if (err) {
+        return sendError(res, 500, err);
+      }
+      return sendResponse(res, true, 200, "Logout succes");
+    });
   } catch (error) {
     return sendError(res, 500, error);
   }
@@ -155,6 +170,7 @@ const changePassword = async (req, res) => {
 
 module.exports = {
   userAuthentication,
+  userLogout,
   createNewStudent,
   sendOTP,
   otpVerification,

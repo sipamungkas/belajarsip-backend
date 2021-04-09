@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
+const { RedisError } = require("redis");
 
 const sendResponse = (res, success, status, message, data) => {
   const response = {
@@ -31,8 +32,12 @@ const sendResponseWithPagination = (
 
 const sendError = (res, status, error) => {
   let statusCode = null;
-  // console.log(error);
   let errorMessage = error?.code || error;
+
+  if (error instanceof RedisError) {
+    errorMessage = `Redis Error ${error.message}`;
+  }
+
   if (error instanceof multer.MulterError) {
     errorMessage = "Unprocessable entitry";
     if (error.code === "LIMIT_FILE_SIZE") {
