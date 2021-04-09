@@ -17,6 +17,7 @@ const {
   isSubcourseOwner,
   studentMyClassWithLimitAndSort,
   instructorMyClassWithLimitAndSort,
+  createCourse,
 } = require("../models/courses");
 
 const {
@@ -32,6 +33,8 @@ const {
 } = require("../helpers/coursesFormatter");
 
 const mysql = require("mysql");
+const path = require("path");
+const fs = require("fs-extra");
 
 const getCoursesWithSort = async (req, res) => {
   try {
@@ -508,6 +511,56 @@ const getMyClassWithLimitAndSort = async (req, res) => {
   }
 };
 
+const createNewCourse = async (req, res) => {
+  try {
+    const { user_id: userId } = req.user;
+    const {
+      name,
+      category,
+      description,
+      level,
+      price,
+      start_date: startDate,
+      session_start: sessionStart,
+      duration,
+      day,
+    } = req.body;
+    let course = {
+      name,
+      category_id: category,
+      level_id: level,
+      description,
+      price: Number(price) || 0,
+      start_date: startDate,
+      session_start: sessionStart,
+      duration,
+      day_id: day,
+    };
+    if (req.file) {
+      const newPathFile = `courses/${req.file.filename}`;
+      course.image = newPathFile;
+    }
+    const newCourse = await createCourse(course, userId);
+    if (newCourse) {
+      return sendResponse(res, true, 201, "Course Created");
+    }
+    return sendResponse(res, false, 422, "Failed to create Course");
+  } catch (error) {
+    if (req.file) {
+      const pathFile = path.join(
+        __dirname,
+        `../../public/images/courses/${req.file.filename}`
+      );
+      console.log(pathFile);
+      const exists = await fs.pathExists(pathFile);
+      if (exists) {
+        fs.unlink(pathFile);
+      }
+    }
+    return sendError(res, 500, error);
+  }
+};
+
 module.exports = {
   getCoursesWithSort,
   getCourseById,
@@ -519,4 +572,5 @@ module.exports = {
   updateStudentScore,
   deleteStudentScore,
   getMyClassWithLimitAndSort,
+  createNewCourse,
 };

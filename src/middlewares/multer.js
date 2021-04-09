@@ -16,7 +16,21 @@ const avatarStorage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req, file, cb) => {
+const coursesStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./public/images/courses");
+  },
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      `course-${req.user.user_id}-${Date.now()}${path.extname(
+        file.originalname
+      )}`
+    );
+  },
+});
+
+const imageFileFilter = (req, file, cb) => {
   const allowedExt = /jpg|png|jpeg|svg|gif/i;
   const isAllowed = allowedExt.test(path.extname(file.originalname));
   console.log(path.extname(file.originalname));
@@ -29,7 +43,15 @@ const uploadAvatar = multer({
   limits: {
     fileSize: 2 * 10 ** 6,
   },
-  fileFilter,
+  fileFilter: imageFileFilter,
+});
+
+const uploadCourseImage = multer({
+  storage: coursesStorage,
+  limits: {
+    fileSize: 2 * 10 ** 6,
+  },
+  fileFilter: imageFileFilter,
 });
 
 const errorMulterHandler = (uploadFunction) => {
@@ -41,4 +63,4 @@ const errorMulterHandler = (uploadFunction) => {
   };
 };
 
-module.exports = { uploadAvatar, errorMulterHandler };
+module.exports = { errorMulterHandler, uploadAvatar, uploadCourseImage };

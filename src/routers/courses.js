@@ -9,12 +9,23 @@ const {
   deleteStudentScore,
   getCoursesWithSort,
   getMyClassWithLimitAndSort,
+  createNewCourse,
 } = require("../handlers/courses");
 const { isInstructor, isStudent } = require("../middlewares/authorization");
+const {
+  uploadCourseImage,
+  errorMulterHandler,
+} = require("../middlewares/multer");
 
 const Router = require("express").Router();
 
 Router.get("/", isStudent, getCoursesWithSort);
+Router.post(
+  "/",
+  isInstructor,
+  errorMulterHandler(uploadCourseImage.single("image")),
+  createNewCourse
+);
 Router.get("/my-class", getMyClassWithLimitAndSort);
 Router.get("/:courseId", getCourseById);
 Router.post("/register", isStudent, registerCourseById);

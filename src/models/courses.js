@@ -378,6 +378,40 @@ const instructorMyClassWithLimitAndSort = (
   });
 };
 
+const createCourse = (course, userId) => {
+  return new Promise((resolve, reject) => {
+    db.beginTransaction((err) => {
+      if (err) return reject(err);
+      const sqlQueryCourse = "INSERT INTO courses SET ?";
+      db.query(sqlQueryCourse, course, (createCourseErr, results) => {
+        if (createCourseErr) {
+          return db.rollback(() => {
+            return reject(createCourseErr);
+          });
+        }
+        const courseId = results.insertId;
+
+        const insertOwnerQuery =
+          "INSERT INTO user_course(user_id,course_id) values(?,?)";
+        db.query(insertOwnerQuery, [userId, courseId], (ownerErr) => {
+          if (ownerErr)
+            return db.rollback(() => {
+              reject(ownerErr);
+            });
+          db.commit((commitErr) => {
+            if (commitErr) {
+              return db.rollback(() => {
+                return reject(commitErr);
+              });
+            }
+            return resolve(true);
+          });
+        });
+      });
+    });
+  });
+};
+
 module.exports = {
   coursesWithLevelAndCategory,
   coursesWithSort,
@@ -400,4 +434,5 @@ module.exports = {
   isSubcourseOwner,
   studentMyClassWithLimitAndSort,
   instructorMyClassWithLimitAndSort,
+  createCourse,
 };
