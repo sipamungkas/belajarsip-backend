@@ -1,35 +1,5 @@
 const db = require("../database/dbMySql");
 
-const coursesWithLevelAndCategory = (
-  searchValue,
-  categoryId,
-  levelId,
-  price
-) => {
-  return new Promise((resolve, reject) => {
-    const findAllQuery =
-      "SELECT c.*, l.name as level, cat.name as category FROM courses c left join levels l on c.level_id = l.id" +
-      " left join categories cat on c.category_id = cat.id where c.name like ?";
-    const findByCategoryIdQuery = "and c.category_id = ?";
-    const findByLevelIdQuery = " and c.level_id = ?";
-    const freeQuery = " and c.price = 0";
-    const paidQuery = " and c.price >= 1";
-    const findByPriceQuery = price && price === "paid" ? paidQuery : freeQuery;
-    const sqlQuery = `${findAllQuery} ${
-      categoryId ? findByCategoryIdQuery : ""
-    } ${levelId ? findByLevelIdQuery : ""} ${price ? findByPriceQuery : ""}`;
-
-    db.query(
-      sqlQuery,
-      [searchValue, categoryId, levelId, price],
-      (error, results) => {
-        if (error) return reject(error);
-        return resolve(results);
-      }
-    );
-  });
-};
-
 const coursesWithSort = (searchValue, sortBy, order, offset, limit) => {
   return new Promise((resolve, reject) => {
     const values = [searchValue];
@@ -198,21 +168,6 @@ const courseStudents = (courseId) => {
   });
 };
 
-const memberSubcourseScore = (courseId, userId) => {
-  return new Promise((resolve, reject) => {
-    const sqlQuery =
-      "SELECT * FROM subcourses s LEFT JOIN user_subcourse us ON s.id = us.subcourse_id " +
-      "where s.course_id = ? and us.user_id = ?";
-    db.query(sqlQuery, [courseId, userId], (error, results) => {
-      if (error) return reject(error);
-      if (results.length > 0) {
-        return resolve(results);
-      }
-      return resolve(false);
-    });
-  });
-};
-
 const isSubcourseOwner = (userId, subcourseId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
@@ -286,17 +241,6 @@ const isSubcourse = (subcourseId) => {
       if (error) return reject(error);
       if (results.length > 0) return resolve(true);
       return resolve(false);
-    });
-  });
-};
-
-const registeredCourses = (userId) => {
-  return new Promise((resolve, reject) => {
-    const sqlQuery =
-      "SELECT user_id,course_id as id from user_course where user_id = ?";
-    db.query(sqlQuery, [userId], (error, results) => {
-      if (error) return reject(error);
-      return resolve(results);
     });
   });
 };
@@ -413,7 +357,6 @@ const createCourse = (course, userId) => {
 };
 
 module.exports = {
-  coursesWithLevelAndCategory,
   coursesWithSort,
   courseById,
   registerToCourseId,
@@ -422,13 +365,13 @@ module.exports = {
   userSubCoursesScore,
   isCourseOwner,
   courseStudents,
-  memberSubcourseScore,
+
   isScored,
   createScore,
   updateScore,
   isSubcourse,
   deleteScore,
-  registeredCourses,
+
   courseByIdForRegistered,
   countSubcourses,
   isSubcourseOwner,
