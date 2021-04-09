@@ -18,6 +18,8 @@ const {
   studentMyClassWithLimitAndSort,
   instructorMyClassWithLimitAndSort,
   createCourse,
+  updateCourseById,
+  getCourseImage,
 } = require("../models/courses");
 
 const {
@@ -561,6 +563,75 @@ const createNewCourse = async (req, res) => {
   }
 };
 
+const updateCourse = async (req, res) => {
+  try {
+    const { user_id: userId } = req.user;
+    const { courseId } = req.params;
+    const {
+      name,
+      category,
+      description,
+      level,
+      price,
+      start_date: startDate,
+      session_start: sessionStart,
+      duration,
+      day,
+    } = req.body;
+
+    let course = {
+      name,
+      category_id: category,
+      level_id: level,
+      description,
+      price: Number(price) || 0,
+      start_date: startDate,
+      session_start: sessionStart,
+      duration,
+      day_id: day,
+    };
+
+    if (req.file) {
+      console.log(req.file);
+      const courseImagePath = await getCourseImage(courseId);
+
+      if (courseImagePath.length >= 1 && courseImagePath[0].image) {
+        const pathFile = path.join(
+          __dirname,
+          `../../public/images/${courseImagePath[0].image}`
+        );
+        console.log();
+        const exists = await fs.pathExists(pathFile);
+        if (exists) {
+          fs.unlink(pathFile);
+        }
+      }
+
+      const newPathFile = `courses/${req.file.filename}`;
+      course.image = newPathFile;
+    }
+    const updateCourse = await updateCourseById(course, courseId);
+    if (updateCourse.affectedRows >= 1) {
+      return sendResponse(res, true, 200, "Course Updated");
+    }
+    return sendResponse(res, false, 422, "Failed to create Course");
+  } catch (error) {
+    console.log(error);
+    if (req.file) {
+      const pathFile = path.join(
+        __dirname,
+        `../../public/images/courses/${req.file.filename}`
+      );
+      console.log(pathFile);
+      const exists = await fs.pathExists(pathFile);
+      if (exists) {
+        fs.unlink(pathFile);
+      }
+    }
+    return sendError(res, 500, error);
+  }
+};
+
 module.exports = {
   getCoursesWithSort,
   getCourseById,
@@ -573,4 +644,5 @@ module.exports = {
   deleteStudentScore,
   getMyClassWithLimitAndSort,
   createNewCourse,
+  updateCourse,
 };

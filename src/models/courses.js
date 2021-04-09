@@ -356,6 +356,28 @@ const createCourse = (course, userId) => {
   });
 };
 
+const updateCourseById = (course, courseId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = "UPDATE courses SET ? WHERE id = ?";
+    db.query(sqlQuery, [course, courseId], (error, results) => {
+      if (error) {
+        return reject(error);
+      }
+      return resolve(results);
+    });
+  });
+};
+
+const getCourseImage = (courseId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = "SELECT image FROM courses WHERE id = ? LIMIT 1";
+    db.query(sqlQuery, courseId, (err, results) => {
+      if (err) return reject(err);
+      return resolve(results);
+    });
+  });
+};
+
 module.exports = {
   coursesWithSort,
   courseById,
@@ -365,17 +387,17 @@ module.exports = {
   userSubCoursesScore,
   isCourseOwner,
   courseStudents,
-
   isScored,
   createScore,
   updateScore,
   isSubcourse,
   deleteScore,
-
   courseByIdForRegistered,
   countSubcourses,
   isSubcourseOwner,
   studentMyClassWithLimitAndSort,
   instructorMyClassWithLimitAndSort,
   createCourse,
+  updateCourseById,
+  getCourseImage,
 };

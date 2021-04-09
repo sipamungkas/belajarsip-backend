@@ -10,6 +10,7 @@ const {
   getCoursesWithSort,
   getMyClassWithLimitAndSort,
   createNewCourse,
+  updateCourse,
 } = require("../handlers/courses");
 const { isInstructor, isStudent } = require("../middlewares/authorization");
 const {
@@ -28,11 +29,18 @@ Router.post(
 );
 Router.get("/my-class", getMyClassWithLimitAndSort);
 Router.get("/:courseId", getCourseById);
+Router.patch(
+  "/:courseId",
+  isInstructor,
+  errorMulterHandler(uploadCourseImage.single("image")),
+  updateCourse
+);
 Router.post("/register", isStudent, registerCourseById);
 Router.get("/:courseId/subcourses", getSubcourses);
 Router.get("/:courseId/students", isInstructor, getCourseStudents);
-Router.get("/:courseId/students/:studentId", isInstructor, getStudentSubcourse);
 Router.post("/:courseId/students", isInstructor, createStudentScore);
+Router.get("/:courseId/students/:studentId", isInstructor, getStudentSubcourse);
+
 Router.patch(
   "/:courseId/students/:studentId",
   isInstructor,
