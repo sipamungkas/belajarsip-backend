@@ -590,7 +590,10 @@ const updateCourse = async (req, res) => {
       duration,
       day_id: day,
     };
-
+    const isOwner = await isCourseOwner(courseId, userId);
+    if (!isOwner) {
+      return sendResponse(res, false, 401, "Unauthorized access");
+    }
     if (req.file) {
       console.log(req.file);
       const courseImagePath = await getCourseImage(courseId);
