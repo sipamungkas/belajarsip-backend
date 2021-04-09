@@ -11,6 +11,7 @@ const {
   getMyClassWithLimitAndSort,
   createNewCourse,
   updateCourse,
+  deleteCourse,
 } = require("../handlers/courses");
 const { isInstructor, isStudent } = require("../middlewares/authorization");
 const {
@@ -35,6 +36,7 @@ Router.patch(
   errorMulterHandler(uploadCourseImage.single("image")),
   updateCourse
 );
+Router.delete("/:courseId", isInstructor, deleteCourse);
 Router.post("/register", isStudent, registerCourseById);
 Router.get("/:courseId/subcourses", getSubcourses);
 Router.get("/:courseId/students", isInstructor, getCourseStudents);

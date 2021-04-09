@@ -20,6 +20,7 @@ const {
   createCourse,
   updateCourseById,
   getCourseImage,
+  deleteCourseById,
 } = require("../models/courses");
 
 const {
@@ -603,7 +604,7 @@ const updateCourse = async (req, res) => {
           __dirname,
           `../../public/images/${courseImagePath[0].image}`
         );
-        console.log();
+
         const exists = await fs.pathExists(pathFile);
         if (exists) {
           fs.unlink(pathFile);
@@ -635,6 +636,37 @@ const updateCourse = async (req, res) => {
   }
 };
 
+const deleteCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { user_id: userId } = req.user;
+    const isOwner = await isCourseOwner(courseId, userId);
+    if (!isOwner) {
+      return sendResponse(res, false, 401, "Unauthorized access");
+    }
+    console.log(isOwner);
+    const courseImagePath = await getCourseImage(courseId);
+    if (courseImagePath.length > 0) {
+      if (courseImagePath[0].image) {
+        const pathFile = path.join(
+          __dirname,
+          `../../public/images/${courseImagePath[0].image}`
+        );
+        const exists = await fs.pathExists(pathFile);
+        if (exists) {
+          fs.unlink(pathFile);
+        }
+      }
+      await deleteCourseById(courseId, userId);
+      return sendResponse(res, true, 204);
+    }
+    return sendResponse(res, false, 404, "Course Not Found");
+  } catch (error) {
+    console.log(error);
+    return sendError(res, 500, error);
+  }
+};
+
 module.exports = {
   getCoursesWithSort,
   getCourseById,
@@ -648,4 +680,5 @@ module.exports = {
   getMyClassWithLimitAndSort,
   createNewCourse,
   updateCourse,
+  deleteCourse,
 };

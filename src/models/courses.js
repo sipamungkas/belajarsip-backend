@@ -378,6 +378,16 @@ const getCourseImage = (courseId) => {
   });
 };
 
+const deleteCourseById = (courseId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = "DELETE FROM courses WHERE id = ?";
+    db.query(sqlQuery, courseId, (err, results) => {
+      if (err) return reject(err);
+      return resolve(results);
+    });
+  });
+};
+
 module.exports = {
   coursesWithSort,
   courseById,
@@ -400,4 +410,5 @@ module.exports = {
   createCourse,
   updateCourseById,
   getCourseImage,
+  deleteCourseById,
 };
