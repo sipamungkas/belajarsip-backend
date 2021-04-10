@@ -59,11 +59,11 @@ const userAuthentication = async (req, res) => {
 
 const userLogout = (req, res) => {
   try {
-    const { user } = req;
+    const { user, token } = req;
     const duration = Math.ceil(
       (new Date(user.exp * 1000) - new Date(Date.now())) / 1000
     );
-    client.setex(`blacklist:${user.user_id}`, duration, true, (err) => {
+    client.setex(`blacklist:${token}`, duration, true, (err) => {
       if (err) {
         return sendError(res, 500, err);
       }

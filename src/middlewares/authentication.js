@@ -14,11 +14,12 @@ const authenticateToken = (req, res, next) => {
     const token = bearer[1];
     const user = jwt.verify(token, jwtSecret);
     if (!user) return sendResponse(res, false, 403, "Unauthorized Access");
-    client.get(`blacklist:${user.user_id}`, (err, blacklisted) => {
+    client.get(`blacklist:${token}`, (err, blacklisted) => {
       if (err) return sendError(res, 500, err);
       if (blacklisted)
         return sendResponse(res, false, 401, "Token Blacklisted");
       req.user = user;
+      req.token = token;
       return next();
     });
   } catch (error) {
