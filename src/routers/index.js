@@ -16,7 +16,6 @@ Router.use((req, res, next) => {
     return res.send(200);
   }
   next();
-  // res.send(200);
 });
 
 Router.get("/", (req, res) => {

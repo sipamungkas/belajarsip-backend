@@ -337,26 +337,23 @@ const createStudentScore = async (req, res) => {
       score,
     } = req.body;
     const { user_id: userId } = req.user;
-    const isOwnerBySubcourseId = await isSubcourseOwner(userId, subcourseId);
-    if (!isOwnerBySubcourseId) {
-      return sendResponse(res, false, 401, "Unauthorized access");
-    }
-
     const subcourseExists = isSubcourse(subcourseId);
     if (!subcourseExists) {
       return sendResponse(res, false, 404, "Subcourse not found!");
     }
+
+    const isOwnerBySubcourseId = await isSubcourseOwner(userId, subcourseId);
+    if (!isOwnerBySubcourseId) {
+      return sendResponse(res, false, 403, "Forbidden access");
+    }
+
     const isStudentHasScore = await isScored(subcourseId, studentId);
     if (isStudentHasScore) {
       return sendResponse(res, true, 200, "Student already have score");
     }
+
     await createScore(subcourseId, studentId, score);
-    return sendResponse(
-      res,
-      true,
-      201,
-      "Create new score for student successfully"
-    );
+    return sendResponse(res, true, 201, "Create Score Success");
   } catch (error) {
     return sendError(res, 500, error);
   }
