@@ -7,6 +7,7 @@ app.use(express.json());
 app.use(express.raw());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(express.static("public"));
 app.use("/v1", Router);
 
 const port = process.env.PORT;
