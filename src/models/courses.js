@@ -16,8 +16,9 @@ const coursesWithSort = (searchValue, sortBy, order, offset, limit) => {
 
     db.query(sqlQuery.join(" "), values, (error, results) => {
       if (error) return reject(error);
-      const countSql = "SELECT count(id) as total FROM courses";
-      db.query(countSql, (countErr, countResults) => {
+      const countSql =
+        "SELECT count(id) as total FROM courses where name like ?";
+      db.query(countSql, [searchValue], (countErr, countResults) => {
         if (countErr) return reject(countErr);
         total = countResults[0].total;
         return resolve({ data: results, total });
