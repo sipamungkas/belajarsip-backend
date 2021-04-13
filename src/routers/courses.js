@@ -21,7 +21,7 @@ const {
 
 const Router = require("express").Router();
 
-Router.get("/", isStudent, getCoursesWithSort);
+Router.get("/", getCoursesWithSort);
 Router.post(
   "/",
   isInstructor,
