@@ -131,9 +131,12 @@ const getCourseById = async (req, res) => {
         }
 
         const subcourses = await subCourses(courseId);
-        const subcoursesPassed = subcourses.filter(
-          (subcourse) => new Date(subcourse.date) < new Date()
-        );
+        let subcoursesPassed = [];
+        if (subcourses) {
+          subcoursesPassed = subcourses.filter(
+            (subcourse) => new Date(subcourse.date) < new Date()
+          );
+        }
         course = {
           ...couserInformation,
           progress: (subcoursesPassed.length / subcourses.length) * 100,
@@ -171,6 +174,7 @@ const getCourseById = async (req, res) => {
     }
     return sendResponse(res, success, statusCode, message, course);
   } catch (error) {
+    console.log("=============", error, "========");
     return sendError(res, 500, error);
   }
 };
