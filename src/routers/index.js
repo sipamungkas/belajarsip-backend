@@ -10,11 +10,11 @@ const levelsRouter = require("./levels");
 
 Router.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "GET,PATCH,POST,DELETE,OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Authorization,Content-type");
-    return res.sendStatus(200);
-  }
+  // if (req.method === "OPTIONS") {
+  //   res.header("Access-Control-Allow-Methods", "GET,PATCH,POST,DELETE,OPTIONS");
+  //   res.header("Access-Control-Allow-Headers", "Authorization,Content-type");
+  //   return res.sendStatus(200);
+  // }
   next();
 });
 
