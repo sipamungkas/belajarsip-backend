@@ -13,7 +13,7 @@ Router.use((req, res, next) => {
   if (req.method === "OPTIONS") {
     res.header("Access-Control-Allow-Methods", "GET,PATCH,POST,DELETE,OPTIONS");
     res.header("Access-Control-Allow-Headers", "Authorization,Content-type");
-    return res.send(200);
+    return res.sendStatus(200);
   }
   next();
 });
