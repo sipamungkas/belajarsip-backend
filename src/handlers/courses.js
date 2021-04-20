@@ -513,6 +513,8 @@ const getMyClassWithLimitAndSort = async (req, res) => {
 
 const createNewCourse = async (req, res) => {
   try {
+    if (!req.file)
+      return sendResponse(res, false, 400, "Image can not be empty");
     const { user_id: userId } = req.user;
     const {
       name,
@@ -546,6 +548,7 @@ const createNewCourse = async (req, res) => {
     }
     return sendResponse(res, false, 422, "Failed to create Course");
   } catch (error) {
+    console.log(error);
     if (req.file) {
       const pathFile = path.join(
         __dirname,
