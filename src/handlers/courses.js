@@ -64,7 +64,7 @@ const getCoursesWithSort = async (req, res) => {
       }
 
       order =
-        sortValue[1].toLowerCase() === "az"
+        sortValue[1]?.toLowerCase() === "az"
           ? mysql.raw("ASC")
           : mysql.raw("DESC");
     }
@@ -439,7 +439,7 @@ const getMyClassWithLimitAndSort = async (req, res) => {
       }
 
       order =
-        sortValue[1].toLowerCase() === "az"
+        sortValue[1]?.toLowerCase() === "az"
           ? mysql.raw("ASC")
           : mysql.raw("DESC");
     }

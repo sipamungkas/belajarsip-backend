@@ -32,7 +32,7 @@ const formatMyCourse = (course) => {
   const progress = (course.finishedClass / course.totalClass) * 100 || 0;
   const formattedCourse = {
     // user_id: course.user_id,
-    id: course.id,
+    id: course.course_id,
     name: course.name,
     description: course.description,
     category: course.category,
