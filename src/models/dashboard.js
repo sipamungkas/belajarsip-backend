@@ -46,10 +46,7 @@ const getTasksByDateInstructor = (date, userId) => {
     db.query(sqlQuery, [userId, date, userId], (error, results) => {
       console.log(results);
       if (error) return reject(error);
-      if (results.length > 0) {
-        return resolve(results);
-      }
-      return resolve(false);
+      return resolve(results);
     });
   });
 };
