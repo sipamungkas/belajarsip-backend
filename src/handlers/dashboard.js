@@ -64,12 +64,10 @@ const getSchedule = async (req, res) => {
       default:
         return sendResponse(res, false, 401, "Unauthorized access");
     }
-    if (!todayTasks) {
-      return sendResponse(res, false, 404, "Today tasks Not found");
-    }
 
     return sendResponse(res, true, 200, message, formattedTasks);
   } catch (error) {
+    console.log(error);
     return sendError(res, 500, error);
   }
 };

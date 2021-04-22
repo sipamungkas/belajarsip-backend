@@ -30,10 +30,7 @@ const getTasksByDate = (date, userId) => {
       "where s.date = ? and uc.user_id = ?";
     db.query(sqlQuery, [date, userId], (error, results) => {
       if (error) return reject(error);
-      if (results.length > 0) {
-        return resolve(results);
-      }
-      return resolve(false);
+      return resolve(results);
     });
   });
 };
