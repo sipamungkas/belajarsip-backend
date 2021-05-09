@@ -90,7 +90,7 @@ const createNewStudent = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     const newStudent = {
-      name,
+      name: name || username,
       username,
       email,
       password: hashedPassword,
@@ -99,6 +99,7 @@ const createNewStudent = async (req, res) => {
     await createStudent(newStudent);
     return sendResponse(res, true, 201, "Account created!");
   } catch (error) {
+    console.log(error);
     return sendError(res, 500, error);
   }
 };
