@@ -13,7 +13,7 @@ const {
 } = require("../models/auth");
 const crypto = require("crypto");
 const client = require("../database/dbRedis");
-const sendOTPService = require("../services/sendOTP");
+const { sendOTP: sendOTPService } = require("../services/sendOTP");
 
 const jwtSecret = process.env.JWT_SECRET;
 const saltRounds = Number(process.env.SALT_ROUNDS);
