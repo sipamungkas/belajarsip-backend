@@ -13,6 +13,7 @@ const {
 } = require("../models/auth");
 const crypto = require("crypto");
 const client = require("../database/dbRedis");
+const sendOTPService = require("../services/sendOTP");
 
 const jwtSecret = process.env.JWT_SECRET;
 const saltRounds = Number(process.env.SALT_ROUNDS);
@@ -115,8 +116,15 @@ const sendOTP = async (req, res) => {
     const token = buffer.toString("hex");
     const expiredAt = new Date().getTime() + 3 * 60 * 60 * 1000;
     const otp = Math.floor(Math.random() * 9000);
+
     await updateResetToken(token, expiredAt, otp, email);
-    // reserved for send email service
+    const htmlMessage = `
+    <p style="text-align: left;"><strong>Your OTP</strong></p>
+    <p style="font-size: 2rem; text-align: left;">${otp}</p>
+    <p style="text-align: left;"><strong>OTP will expired in 3 hours</strong></p>
+    `;
+    const plainMessage = `Your OTP \n ${otp} \nThe OTP will expired in 3 hours`;
+    sendOTPService(email, plainMessage, htmlMessage);
 
     return sendResponse(
       res,
@@ -131,14 +139,13 @@ const sendOTP = async (req, res) => {
 
 const otpVerification = async (req, res) => {
   try {
-    const { token } = req.query;
-    const { otp } = req.body;
+    const { otp, email } = req.body;
 
     if (otp.length !== 4) {
       return sendResponse(res, false, 422, "Unprocessable entity");
     }
 
-    const user = await checkToken(token, otp);
+    const user = await checkToken(email, otp);
     console.log(user);
 
     if (user) {
@@ -157,10 +164,10 @@ const otpVerification = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-    const { reset_token: resetToken, otp, password } = req.body;
+    const { email, otp, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const isUpdated = await newPassword(email, otp, hashedPassword);
 
-    const isUpdated = await newPassword(resetToken, otp, password);
-    console.log(isUpdated);
     if (isUpdated) {
       return sendResponse(res, true, 200, "Password updated");
     }

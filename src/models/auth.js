@@ -73,12 +73,12 @@ const updateResetToken = (resetToken, resetExpired, otp, email) => {
   });
 };
 
-const checkToken = (resetToken, otp) => {
+const checkToken = (email, otp) => {
   return new Promise((resolve, reject) => {
     const checkTokenQuery =
-      "SELECT reset_expired FROM users where reset_token = ? and otp = ? limit 1";
-    db.query(checkTokenQuery, [resetToken, otp], function (error, results) {
-      console.log(resetToken, otp, results);
+      "SELECT reset_expired FROM users where email = ? and otp = ? limit 1";
+    db.query(checkTokenQuery, [email, otp], function (error, results) {
+      console.log(email, otp, results);
       if (error) return reject(error);
 
       if (results.length > 0) {
@@ -90,21 +90,17 @@ const checkToken = (resetToken, otp) => {
   });
 };
 
-const newPassword = (resetToken, otp, password) => {
+const newPassword = (email, otp, password) => {
   return new Promise((resolve, reject) => {
     const updatePasswordQuery =
-      "UPDATE users set password = ?,reset_token = null, otp = null where reset_token = ? and otp = ?";
-    db.query(
-      updatePasswordQuery,
-      [password, resetToken, otp],
-      (error, results) => {
-        if (error) return reject(error);
-        if (results.affectedRows > 0) {
-          return resolve(true);
-        }
-        return resolve(false);
+      "UPDATE users set password = ?, otp = null where email = ? and otp = ?";
+    db.query(updatePasswordQuery, [password, email, otp], (error, results) => {
+      if (error) return reject(error);
+      if (results.affectedRows > 0) {
+        return resolve(true);
       }
-    );
+      return resolve(false);
+    });
   });
 };
 
