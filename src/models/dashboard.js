@@ -40,6 +40,24 @@ const getTasksByDate = (date, userId) => {
   });
 };
 
+const getAllTasksByDate = (date, userId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = [
+      "SELECT s.id,s.title,c.session_start,c.duration,",
+      "(SELECT COUNT(us.score) FROM user_subcourse us join subcourses s2 on s2.id = us.subcourse_id where us.user_id = uc.user_id and s2.course_id = c.id) as finishedClass,",
+      "(SELECT count(course_id) FROM subcourses s where s.course_id = c.id ) as totalClass",
+      "FROM user_course uc LEFT JOIN subcourses s on uc.course_id = s.course_id",
+      "LEFT JOIN courses c on c.id = uc.course_id",
+      "where s.date = ? ",
+    ];
+    console.log(sqlQuery.join(" "));
+    db.query(sqlQuery.join(" "), [date, userId], (error, results) => {
+      if (error) return reject(error);
+      return resolve(results);
+    });
+  });
+};
+
 const getTasksByDateInstructor = (date, userId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
@@ -61,4 +79,5 @@ module.exports = {
   getCourseDay,
   getTasksByDate,
   getTasksByDateInstructor,
+  getAllTasksByDate,
 };

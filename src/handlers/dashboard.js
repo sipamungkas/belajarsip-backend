@@ -2,6 +2,7 @@ const {
   addSubcourse,
   getCourseDay,
   getTasksByDate,
+  getAllTasksByDate,
   getTasksByDateInstructor,
 } = require("../models/dashboard");
 const { isCourseOwner } = require("../models/courses");
@@ -72,4 +73,35 @@ const getSchedule = async (req, res) => {
   }
 };
 
-module.exports = { addNewTask, getSchedule };
+const getAllScheduleByDate = async (req, res) => {
+  try {
+    const { date } = req.params;
+    const { user_id: userId, role_id: roleId } = req.user;
+    let todayTasks, formattedTasks;
+    let message = "List of today all task for students";
+    switch (roleId) {
+      case 1:
+        message = "List of today all tasks for instructor";
+        todayTasks = await getTasksByDateInstructor(date, userId);
+        if (!todayTasks) {
+          formattedTasks = [];
+        } else {
+          formattedTasks = formatInstructorTasks(todayTasks);
+        }
+        break;
+      case 2:
+        todayTasks = await getAllTasksByDate(date, userId);
+        formattedTasks = formatTasks(todayTasks);
+        break;
+      default:
+        return sendResponse(res, false, 401, "Unauthorized access");
+    }
+
+    return sendResponse(res, true, 200, message, formattedTasks);
+  } catch (error) {
+    console.log(error);
+    return sendError(res, 500, error);
+  }
+};
+
+module.exports = { addNewTask, getSchedule, getAllScheduleByDate };
