@@ -25,7 +25,7 @@ const getCourseDay = (courseId) => {
 const getTasksByDate = (date, userId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
-      "SELECT s.title,c.session_start,c.duration FROM user_course uc LEFT JOIN subcourses s on uc.course_id = s.course_id " +
+      "SELECT s.id,s.title,c.session_start,c.duration FROM user_course uc LEFT JOIN subcourses s on uc.course_id = s.course_id " +
       "LEFT JOIN courses c on c.id = uc.course_id " +
       "where s.date = ? and uc.user_id = ?";
     db.query(sqlQuery, [date, userId], (error, results) => {

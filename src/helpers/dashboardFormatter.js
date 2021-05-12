@@ -1,5 +1,6 @@
 const formatTask = (task) => {
   return {
+    id: task.id,
     title: task.title,
     start_at: task.session_start,
     duration: task.duration,
