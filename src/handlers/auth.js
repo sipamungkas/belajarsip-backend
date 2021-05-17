@@ -156,7 +156,7 @@ const otpVerification = async (req, res) => {
       return sendResponse(res, true, 200, "Please Input password");
     }
 
-    return sendResponse(res, false, 401, "Invalid Token");
+    return sendResponse(res, false, 401, "Verification Code Invalid");
   } catch (error) {
     return sendError(res, 500, error);
   }
