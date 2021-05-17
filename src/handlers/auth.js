@@ -150,7 +150,7 @@ const otpVerification = async (req, res) => {
 
     if (user) {
       if (new Date(user.reset_expired) < new Date()) {
-        return sendResponse(res, false, 200, "Token Expired!");
+        return sendResponse(res, false, 200, "Verification Code Expired!");
       }
 
       return sendResponse(res, true, 200, "Please Input password");
