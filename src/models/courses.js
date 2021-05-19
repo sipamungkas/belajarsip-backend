@@ -46,14 +46,16 @@ const courseById = (courseId) => {
 
 const courseByIdForRegistered = (courseId, userId) => {
   return new Promise((resolve, reject) => {
-    const findByIdQuery =
-      "SELECT c.*, l.name as level, cat.name as category," +
-      "AVG(us.score) as score, count(s.id) as subcourses_done " +
-      "FROM courses c left join levels l on c.level_id = l.id " +
-      "left join categories cat on c.category_id = cat.id left join subcourses s on s.course_id = c.id " +
-      "LEFT JOIN user_subcourse us on us.subcourse_id = s.id " +
-      "where us.user_id = ? and c.id = ? limit 1";
-    db.query(findByIdQuery, [userId, courseId], (error, results) => {
+    const findByIdQuery = [
+      "SELECT c.*, l.name as level, cat.name as category,",
+      "AVG(us.score) as score, count(s.id) as subcourses_done",
+      "FROM courses c left join levels l on c.level_id = l.id",
+      "left join categories cat on c.category_id = cat.id left join subcourses s on s.course_id = c.id",
+      "LEFT JOIN user_subcourse us on us.subcourse_id = s.id",
+      "LEFT JOIN user_course uc on uc.course_id = c.id",
+      "where uc.user_id = ? and c.id = ? limit 1",
+    ];
+    db.query(findByIdQuery.join(" "), [userId, courseId], (error, results) => {
       if (error) return reject(error);
 
       if (results.length > 0) {
