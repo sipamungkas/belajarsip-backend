@@ -19,7 +19,7 @@ const formatSubcourse = (subcourse) => {
     date: subcourse.date,
     session_start: subcourse.session_start,
     duration: subcourse.duration,
-    score: subcourse?.score || 0,
+    score: subcourse?.score || null,
   };
   return formattedSubcourse;
 };
