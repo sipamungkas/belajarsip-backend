@@ -47,41 +47,6 @@ const updateProfile = async (req, res) => {
       data.avatar = newPathFile;
     }
 
-    if (!oldPassword) {
-      if (req.file) {
-        const pathFile = path.join(
-          __dirname,
-          `../../public/images/avatars/${req.file.filename}`
-        );
-        const exists = await fs.pathExists(pathFile);
-        if (exists) {
-          fs.unlink(pathFile);
-        }
-        const newPathFile = `avatars/${req.file.filename}`;
-        data.avatar = newPathFile;
-      }
-      return sendResponse(res, false, 422, "Please fill old password");
-    }
-
-    const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isPasswordMatch) {
-      if (req.file) {
-        const pathFile = path.join(
-          __dirname,
-          `../../public/images/avatars/${req.file.filename}`
-        );
-        const exists = await fs.pathExists(pathFile);
-        if (exists) {
-          fs.unlink(pathFile);
-        }
-        const newPathFile = `avatars/${req.file.filename}`;
-        data.avatar = newPathFile;
-      }
-      return sendResponse(res, false, 422, "Password doesn't match");
-    }
-    if (newPassword) {
-      data.password = await bcrypt.hash(newPassword, saltRounds);
-    }
     if (name) {
       data.name = name;
     }
@@ -89,10 +54,37 @@ const updateProfile = async (req, res) => {
       data.phone = phone;
     }
 
+    if (newPassword) {
+      data.password = await bcrypt.hash(newPassword, saltRounds);
+    }
+
+    if (Object.entries(data).length === 0) {
+      return sendResponse(res, false, 422, "Edited Data can not be empty!");
+    }
+
+    if (data.password) {
+      const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isPasswordMatch) {
+        if (data.avatar) {
+          const pathFile = path.join(
+            __dirname,
+            `../../public/images/${data.avatar}`
+          );
+          const exists = await fs.pathExists(pathFile);
+          if (exists) {
+            fs.unlink(pathFile);
+          }
+        }
+
+        return sendResponse(res, false, 422, "Password doesn't match");
+      }
+    }
+
     const isUpdated = await updateProfileByIdWithParams(userId, data);
     if (isUpdated) return sendResponse(res, true, 200, "profile update");
     return sendResponse(res, false, 200, "Failed to update profile");
   } catch (error) {
+    console.log(error);
     return sendError(res, 500, error);
   }
 };

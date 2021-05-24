@@ -1,9 +1,13 @@
 const multer = require("multer");
 const path = require("path");
 const { sendError } = require("../helpers/response");
+const fs = require("fs-extra");
 
 const avatarStorage = multer.diskStorage({
   destination: (req, file, cb) => {
+    if (!fs.existsSync("./public/images/avatars")) {
+      fs.mkdirSync("./public/images/avatars");
+    }
     cb(null, "./public/images/avatars");
   },
   filename: (req, file, cb) => {
@@ -18,6 +22,9 @@ const avatarStorage = multer.diskStorage({
 
 const coursesStorage = multer.diskStorage({
   destination: (req, file, cb) => {
+    if (!fs.existsSync("./public/images/courses")) {
+      fs.mkdirSync("./public/images/courses");
+    }
     cb(null, "./public/images/courses");
   },
   filename: (req, file, cb) => {
