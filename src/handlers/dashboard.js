@@ -76,27 +76,11 @@ const getSchedule = async (req, res) => {
 const getAllScheduleByDate = async (req, res) => {
   try {
     const { date } = req.params;
-    const { user_id: userId, role_id: roleId } = req.user;
+    const { user_id: userId } = req.user;
     let todayTasks, formattedTasks;
     let message = "List of today all task for students";
-    switch (roleId) {
-      case 1:
-        message = "List of today all tasks for instructor";
-        todayTasks = await getTasksByDateInstructor(date, userId);
-        if (!todayTasks) {
-          formattedTasks = [];
-        } else {
-          formattedTasks = formatInstructorTasks(todayTasks);
-        }
-        break;
-      case 2:
-        todayTasks = await getAllTasksByDate(date, userId);
-        formattedTasks = formatTasks(todayTasks);
-        break;
-      default:
-        return sendResponse(res, false, 401, "Unauthorized access");
-    }
-
+    todayTasks = await getAllTasksByDate(date, userId);
+    formattedTasks = formatTasks(todayTasks);
     return sendResponse(res, true, 200, message, formattedTasks);
   } catch (error) {
     console.log(error);
