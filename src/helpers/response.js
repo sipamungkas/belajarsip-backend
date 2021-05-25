@@ -39,10 +39,10 @@ const sendError = (res, status, error) => {
   }
 
   if (error instanceof multer.MulterError) {
-    errorMessage = "Unprocessable entitry";
+    errorMessage = "Unprocessable entity";
     if (error.code === "LIMIT_FILE_SIZE") {
       statusCode = 413;
-      errorMessage = error.message;
+      errorMessage = "Image too large";
     }
   }
 
@@ -57,7 +57,7 @@ const sendError = (res, status, error) => {
 
   const response = {
     success: false,
-    error: errorMessage,
+    message: errorMessage,
   };
 
   res.status(statusCode || status).json(response);
