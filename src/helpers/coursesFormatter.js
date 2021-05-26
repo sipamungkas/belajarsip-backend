@@ -2,6 +2,7 @@ const formatMember = (member) => {
   const formattedMember = {
     user_id: member.userId,
     name: member.name,
+    avatar: member.avatar || null,
   };
 
   return formattedMember;

@@ -174,7 +174,6 @@ const getCourseById = async (req, res) => {
     }
     return sendResponse(res, success, statusCode, message, course);
   } catch (error) {
-    console.log("=============", error, "========");
     return sendError(res, 500, error);
   }
 };
@@ -275,7 +274,7 @@ const getCourseStudents = async (req, res) => {
       return sendResponse(res, false, 401, "Unauthorized access");
     }
     const students = await courseStudents(courseId);
-    console.log(students);
+
     const studentsOnly = students.filter(
       (student) => student.userId !== userId
     );
@@ -558,7 +557,7 @@ const createNewCourse = async (req, res) => {
         __dirname,
         `../../public/images/courses/${req.file.filename}`
       );
-      console.log(pathFile);
+
       const exists = await fs.pathExists(pathFile);
       if (exists) {
         fs.unlink(pathFile);
@@ -600,7 +599,6 @@ const updateCourse = async (req, res) => {
       return sendResponse(res, false, 401, "Unauthorized access");
     }
     if (req.file) {
-      console.log(req.file);
       const courseImagePath = await getCourseImage(courseId);
 
       if (courseImagePath.length >= 1 && courseImagePath[0].image) {
@@ -630,7 +628,7 @@ const updateCourse = async (req, res) => {
         __dirname,
         `../../public/images/courses/${req.file.filename}`
       );
-      console.log(pathFile);
+
       const exists = await fs.pathExists(pathFile);
       if (exists) {
         fs.unlink(pathFile);
@@ -648,7 +646,7 @@ const deleteCourse = async (req, res) => {
     if (!isOwner) {
       return sendResponse(res, false, 401, "Unauthorized access");
     }
-    console.log(isOwner);
+
     const courseImagePath = await getCourseImage(courseId);
     if (courseImagePath.length > 0) {
       if (courseImagePath[0].image) {

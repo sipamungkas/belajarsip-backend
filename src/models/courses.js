@@ -158,7 +158,7 @@ const isCourseOwner = (courseId, userId) => {
 const courseStudents = (courseId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery =
-      "SELECT u.id as userId, u.name FROM user_course uc " +
+      "SELECT u.id as userId, u.name,u.avatar FROM user_course uc " +
       "LEFT JOIN users u ON uc.user_id = u.id " +
       "WHERE uc.course_id = ?";
     db.query(sqlQuery, [courseId], (error, results) => {
