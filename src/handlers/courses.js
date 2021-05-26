@@ -174,6 +174,7 @@ const getCourseById = async (req, res) => {
     }
     return sendResponse(res, success, statusCode, message, course);
   } catch (error) {
+    console.log(error);
     return sendError(res, 500, error);
   }
 };
