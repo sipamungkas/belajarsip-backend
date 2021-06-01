@@ -8,7 +8,7 @@ const User = require("../models/chats");
 const getUsers = async (req, res) => {
   try {
     const { baseUrl, path } = req;
-    const { search, sort, page, limit } = req.query;
+    const { search, page, limit } = req.query;
 
     const searchValue = `%${search || ""}%`;
     const pageNumber = Number(page) || 1;
