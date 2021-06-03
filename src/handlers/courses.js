@@ -21,6 +21,7 @@ const {
   updateCourseById,
   getCourseImage,
   deleteCourseById,
+  getCourseOwner,
 } = require("../models/courses");
 
 const {
@@ -38,6 +39,8 @@ const {
 const mysql = require("mysql");
 const path = require("path");
 const fs = require("fs-extra");
+const { createNotification } = require("../models/notification");
+const { sendNotification } = require("../services/socket");
 
 const getCoursesWithSort = async (req, res) => {
   try {
@@ -182,7 +185,7 @@ const getCourseById = async (req, res) => {
 const registerCourseById = async (req, res) => {
   try {
     const { course_id: courseId } = req.body;
-    const { user_id: userId, role_id: roleId } = req.user;
+    const { user_id: userId, role_id: roleId, name } = req.user;
     if (roleId !== 2) {
       return sendResponse(
         res,
@@ -201,7 +204,15 @@ const registerCourseById = async (req, res) => {
       );
     }
     const registerStatus = await registerToCourseId(courseId, userId);
+    const notificationContent = `${name} has registered to your course`;
     if (registerStatus) {
+      const owner = await getCourseOwner(courseId);
+      await createNotification(notificationContent, owner[0]?.user_id);
+      sendNotification(
+        `notification:${owner[0]?.user_id || 0}`,
+        notificationContent
+      );
+
       return sendResponse(res, true, 201, "Course registration success");
     }
 

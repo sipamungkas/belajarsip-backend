@@ -393,6 +393,21 @@ const deleteCourseById = (courseId) => {
   });
 };
 
+const getCourseOwner = (courseId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = [
+      "SELECT user_id from user_course uc ",
+      "left join users u on uc.user_id = u.id",
+      "where uc.course_id = ? and u.role_id = 1",
+    ];
+
+    db.query(sqlQuery.join(" "), [courseId], (err, results) => {
+      if (err) return reject(err);
+      return resolve(results);
+    });
+  });
+};
+
 module.exports = {
   coursesWithSort,
   courseById,
@@ -415,5 +430,6 @@ module.exports = {
   createCourse,
   updateCourseById,
   getCourseImage,
+  getCourseOwner,
   deleteCourseById,
 };
