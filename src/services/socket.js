@@ -12,7 +12,7 @@ exports.socketConnection = (server, options) => {
       console.log(events, args);
     });
     console.info(`Client connected [id=${socket.id}]`);
-    socket.on("join", (room) => {
+    socket.on("join", (...room) => {
       socket.join(room);
       io.to(room).emit("notification", {
         title: "Succes Join Room",

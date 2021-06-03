@@ -17,4 +17,18 @@ const getAllUser = (searchValue, offset, limitPerPage) => {
   });
 };
 
-module.exports = { getAllUser };
+const createNewMessage = ({ from, content, receiver }) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = [
+      "INSERT INTO belajarsip_dev.messages",
+      "(`from`, content, receiver)",
+      "VALUES(?, ?, ?)",
+    ];
+    db.query(sqlQuery.join(" "), [from, content, receiver], (err, results) => {
+      if (err) return reject(err);
+      return resolve(results);
+    });
+  });
+};
+
+module.exports = { getAllUser, createNewMessage };
