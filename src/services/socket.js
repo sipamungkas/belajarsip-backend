@@ -14,7 +14,10 @@ exports.socketConnection = (server, options) => {
     console.info(`Client connected [id=${socket.id}]`);
     socket.on("join", (room) => {
       socket.join(room);
-      io.to(room).emit("notification", `Welcome to ${room}`);
+      io.to(room).emit("notification", {
+        title: "Succes Join Room",
+        content: `Welcome to ${room}`,
+      });
       socket.on("disconnect", () => {
         socket.leave(room);
         console.info(`Client disconnected [id=${socket.id}]`);

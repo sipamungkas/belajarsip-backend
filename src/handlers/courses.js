@@ -204,10 +204,13 @@ const registerCourseById = async (req, res) => {
       );
     }
     const registerStatus = await registerToCourseId(courseId, userId);
-    const notificationContent = `${name} has registered to your course`;
+    const notificationContent = {
+      title: "New Student!",
+      content: `${name} has registered to your course`,
+    };
     if (registerStatus) {
       const owner = await getCourseOwner(courseId);
-      await createNotification(notificationContent, owner[0]?.user_id);
+      await createNotification(notificationContent.content, owner[0]?.user_id);
       sendNotification(
         `notification:${owner[0]?.user_id || 0}`,
         notificationContent
