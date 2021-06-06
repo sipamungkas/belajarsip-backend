@@ -104,9 +104,25 @@ const getRoomInformation = async (req, res) => {
   }
 };
 
+const getChatList = async (req, res) => {
+  try {
+    const { user_id: userId } = req.user;
+    const chatList = await Chat.chatList(userId);
+    console.log(chatList);
+    if (chatList.length === 0) {
+      return sendResponse(res, true, 404, "Chat List not found!");
+    }
+    return sendResponse(res, true, 200, "Chat List", chatList);
+  } catch (error) {
+    console.log(error);
+    return sendError(res, 500, error);
+  }
+};
+
 module.exports = {
   getUsers,
   sendMessage,
   createNewRoom,
   getRoomInformation,
+  getChatList,
 };
