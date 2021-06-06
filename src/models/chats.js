@@ -21,7 +21,7 @@ const createNewMessage = ({ from, content, receiver }) => {
   return new Promise((resolve, reject) => {
     const sqlQuery = [
       "INSERT INTO belajarsip_dev.messages",
-      "(`from`, content, receiver)",
+      "(`from`, content, user_id)",
       "VALUES(?, ?, ?)",
     ];
     db.query(sqlQuery.join(" "), [from, content, receiver], (err, results) => {
