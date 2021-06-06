@@ -55,13 +55,14 @@ const sendMessage = async (req, res) => {
     const { user_id: userId } = req.user;
 
     const message = {
-      from: userId,
+      user_id: userId,
       content,
       room_id: roomId,
+      created_at: new Date(),
     };
-
     const newMessage = await Chat.createNewMessage(message);
     if (!newMessage) return sendError(res, 502, "Bad gateway");
+
     socket.sendMessage(`message:${roomId}`, "message", {
       ...message,
       id: newMessage.insertId,
@@ -127,7 +128,57 @@ const getChatList = async (req, res) => {
   }
 };
 
+const getMessagesByRoomId = async (req, res) => {
+  const { baseUrl, path } = req;
+  const { roomId } = req.params;
+  const { user_id: userId } = req.user;
+  const { page, limit } = req.query;
+
+  const pageNumber = Number(page) || 1;
+  const limitPerPage = Number(limit) || 10;
+  const offset = (pageNumber - 1) * limitPerPage;
+  const messages = await Chat.getMessagesByRoomId(
+    roomId,
+    userId,
+    limitPerPage,
+    offset
+  );
+  if (!messages) {
+    return sendError(res, 500, "Failed to get messages");
+  }
+
+  if (messages?.data?.length === 0) {
+    return sendResponse(res, true, 404, "Messges not found!");
+  }
+
+  const formattedMessages = messages.data;
+  const totalPage = Math.ceil(messages.total / limitPerPage);
+  const info = {
+    total: messages.total,
+    current_page: pageNumber,
+    total_page: totalPage,
+    next:
+      pageNumber >= totalPage
+        ? null
+        : `${baseUrl}/${path}?page=${pageNumber + 1}&limit=${limitPerPage}`,
+    prev:
+      pageNumber === 1
+        ? null
+        : `${baseUrl}/${path}?page=${pageNumber - 1}&limit=${limitPerPage}`,
+  };
+
+  return sendResponseWithPagination(
+    res,
+    true,
+    200,
+    "Messages",
+    formattedMessages,
+    info
+  );
+};
+
 module.exports = {
+  getMessagesByRoomId,
   getUsers,
   sendMessage,
   createNewRoom,

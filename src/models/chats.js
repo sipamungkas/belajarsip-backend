@@ -18,17 +18,26 @@ const getAllUser = (searchValue, offset, limitPerPage) => {
   });
 };
 
-const createNewMessage = ({ from, content, receiver }) => {
+const createNewMessage = ({
+  user_id: userId,
+  content,
+  room_id: roomId,
+  created_at: createdAt,
+}) => {
   return new Promise((resolve, reject) => {
     const sqlQuery = [
-      "INSERT INTO belajarsip_dev.messages",
-      "(`from`, content, user_id)",
-      "VALUES(?, ?, ?)",
+      "INSERT INTO messages",
+      "(user_id, content, room_id,created_at)",
+      "VALUES(?, ?, ?, ?)",
     ];
-    db.query(sqlQuery.join(" "), [from, content, receiver], (err, results) => {
-      if (err) return reject(err);
-      return resolve(results);
-    });
+    db.query(
+      sqlQuery.join(" "),
+      [userId, content, roomId, createdAt],
+      (err, results) => {
+        if (err) return reject(err);
+        return resolve(results);
+      }
+    );
   });
 };
 
@@ -119,7 +128,35 @@ const chatList = (userId) => {
   });
 };
 
+const getMessagesByRoomId = (roomId, userId, limit, offset) => {
+  return new Promise((resolve, reject) => {
+    let total = 0;
+    const sqlQuery = [
+      "SELECT m.id, m.user_id, m.content, m.created_at FROM rooms r",
+      "left join messages m on r.id = m.room_id",
+      "left join room_user ru on ru.room_id = r.id",
+      "WHERE r.id = ? and ru.user_id = ?",
+      "order BY m.created_at DESC LIMIT ? OFFSET ?",
+    ];
+    db.query(
+      sqlQuery.join(" "),
+      [roomId, userId, limit, offset],
+      (error, results) => {
+        if (error) return reject(error);
+        const countSql =
+          "SELECT count(id) AS total FROM messages where room_id = ?";
+        db.query(countSql, [roomId], (countErr, countResults) => {
+          if (countErr) return reject(countErr);
+          total = countResults[0].total;
+          return resolve({ data: results, total });
+        });
+      }
+    );
+  });
+};
+
 module.exports = {
+  getMessagesByRoomId,
   getAllUser,
   createNewMessage,
   createRoom,
