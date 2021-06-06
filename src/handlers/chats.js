@@ -77,7 +77,7 @@ const createNewRoom = async (req, res) => {
   try {
     const { members, name } = req.body;
     const { user_id: userId } = req.user;
-    if (members.length <= 0 || !name) {
+    if (members.length <= 0) {
       return sendResponse(res, false, 422, "Unprocessable Entity!");
     }
     const allMember = [...members, userId];
