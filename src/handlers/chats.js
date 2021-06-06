@@ -76,10 +76,26 @@ const createNewRoom = async (req, res) => {
   try {
     const { members, name } = req.body;
     const { user_id: userId } = req.user;
+    if (members.length <= 0 || !name) {
+      return sendResponse(res, false, 422, "Unprocessable Entity!");
+    }
     const allMember = [...members, userId];
     const data = await Chat.createRoom(name, allMember);
-    if (!data) return sendError(res, 502, "Bad gateway");
+    if (!data) return sendError(res, 502, "Bad Gateway");
     return sendResponse(res, true, 201, "Room Created!", { room_id: data });
+  } catch (error) {
+    console.log(error);
+    return sendError(res, 500, error);
+  }
+};
+
+const getRoomInformation = async (req, res) => {
+  try {
+    const { roomId } = req.quer;
+    return console.log(roomId);
+    const { user_id: userId } = req.user;
+    const room = await Chat.roomInformation();
+    if (!room) return sendResponse(res, 502, "Bad Gateway!");
   } catch (error) {
     console.log(error);
     return sendError(res, 500, error);
@@ -90,4 +106,5 @@ module.exports = {
   getUsers,
   sendMessage,
   createNewRoom,
+  getRoomInformation,
 };
