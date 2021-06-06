@@ -77,7 +77,7 @@ const createRoom = (name, members) => {
 const roomInformation = (roomId, userId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery = [
-      "SELECT r.id as id, r.name as name FROM  rooms r",
+      "SELECT r.id as id, r.name as name,r.created_at as created_at FROM rooms r",
       "LEFT JOIN room_user ru ON r.id = ru.room_id",
       "WHERE r.id  = ? and ru.user_id = ?",
     ];
