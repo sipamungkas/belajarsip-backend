@@ -29,11 +29,11 @@ const getUsers = async (req, res) => {
       next:
         pageNumber >= totalPage
           ? null
-          : `${baseUrl}/${path}?page=${pageNumber + 1}&limit=${limitPerPage}`,
+          : `${baseUrl}${path}?page=${pageNumber + 1}&limit=${limitPerPage}`,
       prev:
         pageNumber === 1
           ? null
-          : `${baseUrl}/${path}?page=${pageNumber - 1}&limit=${limitPerPage}`,
+          : `${baseUrl}${path}?page=${pageNumber - 1}&limit=${limitPerPage}`,
     };
 
     return sendResponseWithPagination(
@@ -160,11 +160,11 @@ const getMessagesByRoomId = async (req, res) => {
     next:
       pageNumber >= totalPage
         ? null
-        : `${baseUrl}/${path}?page=${pageNumber + 1}&limit=${limitPerPage}`,
+        : `${baseUrl}${path}?page=${pageNumber + 1}&limit=${limitPerPage}`,
     prev:
       pageNumber === 1
         ? null
-        : `${baseUrl}/${path}?page=${pageNumber - 1}&limit=${limitPerPage}`,
+        : `${baseUrl}${path}?page=${pageNumber - 1}&limit=${limitPerPage}`,
   };
 
   return sendResponseWithPagination(
