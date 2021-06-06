@@ -88,6 +88,20 @@ const roomInformation = (roomId, userId) => {
   });
 };
 
+const getPMReceiverName = (roomId, userId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = [
+      "SELECT u.id, u.name FROM room_user ru",
+      "LEFT JOIN users u ON ru.user_id = u.id",
+      "WHERE ru.user_id != ? AND ru.room_id = ? LIMIT 1",
+    ];
+    db.query(sqlQuery.join(" "), [userId, roomId], (error, results) => {
+      if (error) return reject(error);
+      return resolve(results);
+    });
+  });
+};
+
 const chatList = (userId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery = [
@@ -111,4 +125,5 @@ module.exports = {
   createRoom,
   roomInformation,
   chatList,
+  getPMReceiverName,
 };

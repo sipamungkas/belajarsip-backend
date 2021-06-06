@@ -97,7 +97,15 @@ const getRoomInformation = async (req, res) => {
     if (room.length === 0) {
       return sendResponse(res, true, 404, "Room information not found!");
     }
-    return sendResponse(res, true, 200, "Room information", room[0]);
+    let roomInformation = room[0];
+    if (!room[0].name) {
+      const roomName = await Chat.getPMReceiverName(room[0].id, userId);
+      roomInformation = {
+        ...roomInformation,
+        name: roomName[0]?.name || "No Name",
+      };
+    }
+    return sendResponse(res, true, 200, "Room information", roomInformation);
   } catch (error) {
     console.log(error);
     return sendError(res, 500, error);
