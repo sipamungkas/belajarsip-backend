@@ -23,7 +23,7 @@ const sendResponseWithPagination = (
   const response = {
     success,
     message,
-    data,
+    data: data || [],
     info,
   };
 

@@ -51,18 +51,18 @@ const getUsers = async (req, res) => {
 
 const sendMessage = async (req, res) => {
   try {
-    const { content, receiver } = req.body;
+    const { content, room_id: roomId } = req.body;
     const { user_id: userId } = req.user;
 
     const message = {
       from: userId,
       content,
-      receiver,
+      room_id: roomId,
     };
 
     const newMessage = await Chat.createNewMessage(message);
     if (!newMessage) return sendError(res, 502, "bad gateway");
-    socket.sendMessage(`message:${receiver}`, "message", {
+    socket.sendMessage(`message:${roomId}`, "message", {
       ...message,
       id: newMessage.insertId,
     });

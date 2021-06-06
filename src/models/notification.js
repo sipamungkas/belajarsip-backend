@@ -12,4 +12,22 @@ const createNotification = (content, to) => {
   });
 };
 
-module.exports = { createNotification };
+const getAllNotification = (limit, offset, userId) => {
+  let total = 0;
+  return new Promise((resolve, reject) => {
+    const sqlQuery =
+      "SELECT * FROM notifications n where n.receiver = ?  ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    db.query(sqlQuery, [userId, limit, offset], (error, results) => {
+      if (error) return reject(error);
+      const countSql =
+        "SELECT count(id) AS total FROM notifications n where n.receiver = ?";
+      db.query(countSql, [userId], (countErr, countResults) => {
+        if (countErr) return reject(countErr);
+        total = countResults[0].total;
+        return resolve({ data: results, total });
+      });
+    });
+  });
+};
+
+module.exports = { createNotification, getAllNotification };

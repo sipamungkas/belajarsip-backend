@@ -8,6 +8,7 @@ const { authenticateToken } = require("../middlewares/authentication");
 const categoriesRouter = require("./categories");
 const levelsRouter = require("./levels");
 const chatsRouter = require("./chats");
+const notificationsRouter = require("./notifications");
 
 Router.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -29,5 +30,6 @@ Router.use("/profile", authenticateToken, profileRouter);
 Router.use("/categories", authenticateToken, categoriesRouter);
 Router.use("/levels", authenticateToken, levelsRouter);
 Router.use("/chats", authenticateToken, chatsRouter);
+Router.use("/notifications", authenticateToken, notificationsRouter);
 
 module.exports = Router;
