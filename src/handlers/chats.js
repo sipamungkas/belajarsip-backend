@@ -61,7 +61,7 @@ const sendMessage = async (req, res) => {
     };
 
     const newMessage = await Chat.createNewMessage(message);
-    if (!newMessage) return sendError(res, 502, "bad gateway");
+    if (!newMessage) return sendError(res, 502, "Bad gateway");
     socket.sendMessage(`message:${roomId}`, "message", {
       ...message,
       id: newMessage.insertId,
@@ -72,7 +72,22 @@ const sendMessage = async (req, res) => {
   }
 };
 
+const createNewRoom = async (req, res) => {
+  try {
+    const { members, name } = req.body;
+    const { user_id: userId } = req.user;
+    const allMember = [...members, userId];
+    const data = await Chat.createRoom(name, allMember);
+    if (!data) return sendError(res, 502, "Bad gateway");
+    return sendResponse(res, true, 201, "Room Created!", { room_id: data });
+  } catch (error) {
+    console.log(error);
+    return sendError(res, 500, error);
+  }
+};
+
 module.exports = {
   getUsers,
   sendMessage,
+  createNewRoom,
 };

@@ -1,4 +1,5 @@
 const db = require("../database/dbMySql");
+const { v4: uuidV4 } = require("uuid");
 
 const getAllUser = (searchValue, offset, limitPerPage) => {
   return new Promise((resolve, reject) => {
@@ -31,4 +32,46 @@ const createNewMessage = ({ from, content, receiver }) => {
   });
 };
 
-module.exports = { getAllUser, createNewMessage };
+const createRoom = (name, members) => {
+  return new Promise((resolve, reject) => {
+    db.beginTransaction((transactionErr) => {
+      if (transactionErr) {
+        db.rollback(() => {
+          return reject(transactionErr);
+        });
+      }
+
+      const id = uuidV4();
+
+      const sqlQuery = "INSERT INTO rooms (id, name) VALUES(?, ?)";
+      db.query(sqlQuery, [id, name], (createRoomError, createRoomResults) => {
+        if (createRoomError) {
+          return db.rollback(() => {
+            return reject(createRoomError);
+          });
+        }
+
+        const membersWithRoomId = members.map((member) => [id, member]);
+        console.log(members, membersWithRoomId);
+        const insertMemberQuery =
+          "INSERT INTO room_user (room_id, user_id) VALUES ?";
+        db.query(
+          insertMemberQuery,
+          [membersWithRoomId],
+          (insertMemberError) => {
+            if (insertMemberError) {
+              return db.rollback(() => {
+                return reject(insertMemberError);
+              });
+            }
+            db.commit(() => {
+              return resolve(id);
+            });
+          }
+        );
+      });
+    });
+  });
+};
+
+module.exports = { getAllUser, createNewMessage, createRoom };
