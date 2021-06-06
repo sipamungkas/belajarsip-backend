@@ -91,11 +91,13 @@ const createNewRoom = async (req, res) => {
 
 const getRoomInformation = async (req, res) => {
   try {
-    const { roomId } = req.quer;
-    return console.log(roomId);
+    const { roomId } = req.params;
     const { user_id: userId } = req.user;
-    const room = await Chat.roomInformation();
-    if (!room) return sendResponse(res, 502, "Bad Gateway!");
+    const room = await Chat.roomInformation(roomId, userId);
+    if (room.length === 0) {
+      return sendResponse(res, true, 404, "Room information not found!");
+    }
+    return sendResponse(res, true, 200, "Room information", room[0]);
   } catch (error) {
     console.log(error);
     return sendError(res, 500, error);

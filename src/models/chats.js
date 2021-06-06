@@ -74,4 +74,18 @@ const createRoom = (name, members) => {
   });
 };
 
-module.exports = { getAllUser, createNewMessage, createRoom };
+const roomInformation = (roomId, userId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = [
+      "SELECT r.id as id, r.name as name FROM  rooms r",
+      "LEFT JOIN room_user ru ON r.id = ru.room_id",
+      "WHERE r.id  = ? and ru.user_id = ?",
+    ];
+    db.query(sqlQuery.join(" "), [roomId, userId], (error, results) => {
+      if (error) return reject(error);
+      return resolve(results);
+    });
+  });
+};
+
+module.exports = { getAllUser, createNewMessage, createRoom, roomInformation };
