@@ -140,9 +140,10 @@ const getMessagesByRoomId = (roomId, userId, limit, offset) => {
   return new Promise((resolve, reject) => {
     let total = 0;
     const sqlQuery = [
-      "SELECT m.id, m.user_id, m.content, m.created_at FROM rooms r",
+      "SELECT m.id, m.user_id, m.content, m.created_at,u.name FROM rooms r",
       "left join messages m on r.id = m.room_id",
       "left join room_user ru on ru.room_id = r.id",
+      "left join users u on u.id = m.user_id",
       "WHERE r.id = ? and ru.user_id = ?",
       "order BY m.created_at DESC LIMIT ? OFFSET ?",
     ];
