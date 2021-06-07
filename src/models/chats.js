@@ -163,7 +163,18 @@ const getMessagesByRoomId = (roomId, userId, limit, offset) => {
   });
 };
 
+const roomList = (userId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = "select ru.room_id from room_user ru where ru.user_id = ?";
+    db.query(sqlQuery, [userId], (error, results) => {
+      if (error) return reject(error);
+      return resolve(results);
+    });
+  });
+};
+
 module.exports = {
+  roomList,
   getMessagesByRoomId,
   getAllUser,
   createNewMessage,

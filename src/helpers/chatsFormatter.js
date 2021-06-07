@@ -24,8 +24,13 @@ const recentChatsFormatter = (chats) => {
   return chats.map((chat) => recentChatFormatter(chat));
 };
 
+const roomListFormatter = (rooms) => {
+  return rooms.map((room) => room.room_id);
+};
+
 module.exports = {
   userFormatter,
   usersFormatter,
   recentChatsFormatter,
+  roomListFormatter,
 };

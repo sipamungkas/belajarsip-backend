@@ -6,6 +6,7 @@ const {
 const {
   usersFormatter,
   recentChatsFormatter,
+  roomListFormatter,
 } = require("../helpers/chatsFormatter");
 const Chat = require("../models/chats");
 const socket = require("../services/socket");
@@ -185,6 +186,21 @@ const getMessagesByRoomId = async (req, res) => {
   );
 };
 
+const getRoomList = async (req, res) => {
+  const { user_id: userId } = req.user;
+
+  const rooms = await Chat.roomList(userId);
+  if (!rooms) {
+    return sendError(res, 500, "Failed to get room list");
+  }
+
+  if (rooms.length === 0) {
+    return sendResponse(res, true, 404, "You dont have any room!");
+  }
+  const formattedRooms = roomListFormatter(rooms);
+  return sendResponse(res, true, 200, "Room List", formattedRooms);
+};
+
 module.exports = {
   getMessagesByRoomId,
   getUsers,
@@ -192,4 +208,5 @@ module.exports = {
   createNewRoom,
   getRoomInformation,
   getChatList,
+  getRoomList,
 };
