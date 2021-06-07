@@ -77,7 +77,7 @@ const sendMessage = async (req, res) => {
     const receiver = members.map(
       (member) => `msgNotification:${member.user_ud}`
     );
-
+    console.log(receiver);
     socket.sendMsgNotification(receiver, {
       title: "You got new Message!",
       content: `New Message from ${name}`,
