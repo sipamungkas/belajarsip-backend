@@ -83,6 +83,20 @@ const createRoom = (name, members) => {
   });
 };
 
+const roomExist = (members) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = [
+      "SELECT count(r.id) as c, r.id FROM rooms r LEFT JOIN room_user ru on ru.room_id = r.id",
+      "WHERE ISNULL(r.name) and (ru.user_id = ? or ru.user_id = ?)",
+      "GROUP BY r.id HAVING c = 2",
+    ];
+    db.query(sqlQuery.join(" "), members, (error, results) => {
+      if (error) return reject(error);
+      return resolve(results);
+    });
+  });
+};
+
 const roomInformation = (roomId, userId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery = [
@@ -183,4 +197,5 @@ module.exports = {
   roomInformation,
   chatList,
   getPMReceiverName,
+  roomExist,
 };

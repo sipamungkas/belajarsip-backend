@@ -85,9 +85,50 @@ const createNewRoom = async (req, res) => {
     if (members.length <= 0) {
       return sendResponse(res, false, 422, "Unprocessable Entity!");
     }
-    const allMember = [...members, userId];
+    let allMember = members;
+    if (allMember.findIndex((member) => member === userId) === -1) {
+      allMember = [...allMember, userId];
+    }
     const data = await Chat.createRoom(name, allMember);
     if (!data) return sendError(res, 502, "Bad Gateway");
+    return sendResponse(res, true, 201, "Room Created!", { room_id: data });
+  } catch (error) {
+    console.log(error);
+    return sendError(res, 500, error);
+  }
+};
+
+const createPrivateRoom = async (req, res) => {
+  try {
+    const { members } = req.body;
+    const { user_id: userId } = req.user;
+    if (members.length <= 0 || members.length >= 2) {
+      return sendResponse(res, false, 422, "Unprocessable Entity!");
+    }
+    let allMember = members;
+    console.log(
+      members,
+      userId,
+      allMember.findIndex((member) => member === userId) !== -1
+    );
+    if (allMember.findIndex((member) => member === userId) === -1) {
+      allMember = [...allMember, userId];
+    }
+
+    if (allMember.length !== 2) {
+      return sendResponse(res, false, 422, "Unprocessable Entity!");
+    }
+    const isExist = await Chat.roomExist(allMember);
+
+    if (isExist[0]?.c === 2) {
+      return sendResponse(res, true, 201, "Room Already exists!", {
+        room_id: isExist[0].id,
+      });
+    }
+
+    const data = await Chat.createRoom(null, allMember);
+    if (!data) return sendError(res, 502, "Bad Gateway");
+
     return sendResponse(res, true, 201, "Room Created!", { room_id: data });
   } catch (error) {
     console.log(error);
@@ -210,4 +251,5 @@ module.exports = {
   getRoomInformation,
   getChatList,
   getRoomList,
+  createPrivateRoom,
 };
