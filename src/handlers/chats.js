@@ -117,7 +117,6 @@ const getChatList = async (req, res) => {
   try {
     const { user_id: userId } = req.user;
     const chatList = await Chat.chatList(userId);
-    console.log(chatList);
     if (chatList.length === 0) {
       return sendResponse(res, true, 404, "Chat List not found!");
     }
