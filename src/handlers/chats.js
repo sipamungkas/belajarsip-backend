@@ -202,7 +202,7 @@ const getMessagesByRoomId = async (req, res) => {
     return sendResponse(res, true, 404, "Messges not found!");
   }
 
-  const formattedMessages = messages.data;
+  const formattedMessages = messages?.data || [];
   const totalPage = Math.ceil(messages.total / limitPerPage);
   const info = {
     total: messages.total,
