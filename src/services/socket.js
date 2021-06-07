@@ -33,4 +33,8 @@ exports.sendNotification = (roomId, content) => {
   io.to(roomId).emit("notification", content);
 };
 
+exports.sendMsgNotification = (roomId, content) => {
+  io.to(roomId).emit("message-notification", content);
+};
+
 exports.getRooms = () => io.sockets.adapter.rooms;

@@ -72,6 +72,16 @@ const sendMessage = async (req, res) => {
       ...message,
       id: newMessage.insertId,
     });
+
+    const members = await Chat.getRoomMember(userId, roomId);
+    const receiver = members.map(
+      (member) => `msgNotification:${member.user_ud}`
+    );
+
+    socket.sendMsgNotification(receiver, {
+      title: "You got new Message!",
+      content: `New Message from ${name}`,
+    });
     return sendResponse(res, true, 201);
   } catch (error) {
     return sendError(res, 500, error);

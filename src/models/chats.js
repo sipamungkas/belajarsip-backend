@@ -188,6 +188,17 @@ const roomList = (userId) => {
   });
 };
 
+const getRoomMember = (userId, roomId) => {
+  return new Promise((resolve, reject) => {
+    const sqlQuery =
+      "SELECT ru.user_id from room_user ru WHERE ru.room_id = ? and ru.user_id != ?";
+    db.query(sqlQuery, [roomId, userId], (error, results) => {
+      if (error) return reject(error);
+      return resolve(results);
+    });
+  });
+};
+
 module.exports = {
   roomList,
   getMessagesByRoomId,
@@ -198,4 +209,5 @@ module.exports = {
   chatList,
   getPMReceiverName,
   roomExist,
+  getRoomMember,
 };
