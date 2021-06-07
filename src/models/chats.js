@@ -114,14 +114,22 @@ const getPMReceiverName = (roomId, userId) => {
 const chatList = (userId) => {
   return new Promise((resolve, reject) => {
     const sqlQuery = [
+      // "SELECT r.id, r.name,",
+      // "(SELECT m.content from messages m where m.room_id = r.id and m.user_id = ru.user_id  ORDER BY created_at DESC limit 1) as content,",
+      // "(SELECT m.created_at from messages m where m.room_id = r.id and m.user_id = ru.user_id  ORDER BY created_at DESC limit 1) as created_at",
+      // "FROM rooms r",
+      // "left join room_user ru ON r.id = ru.room_id WHERE ru.user_id = ?",
+      // "ORDER BY created_at DESC",
       "SELECT r.id, r.name,",
-      "(SELECT m.content from messages m where m.room_id = r.id and m.user_id = ru.user_id  ORDER BY created_at DESC limit 1) as content,",
-      "(SELECT m.created_at from messages m where m.room_id = r.id and m.user_id = ru.user_id  ORDER BY created_at DESC limit 1) as created_at",
-      "FROM rooms r",
-      "left join room_user ru ON r.id = ru.room_id WHERE ru.user_id = ?",
-      "ORDER BY created_at DESC",
+      "(SELECT u.name FROM room_user ru LEFT JOIN users u ON ru.user_id = u.id",
+      "WHERE ru.user_id != ? AND ru.room_id = r.id LIMIT 1) as alt_name,",
+      "(SELECT m.content from messages m where m.room_id = r.id",
+      "and m.user_id = ru.user_id ORDER BY created_at DESC limit 1) as content,",
+      "(SELECT m.created_at from messages m where m.room_id = r.id",
+      "and m.user_id = ru.user_id ORDER BY created_at DESC limit 1) as created_at FROM rooms r",
+      "left join room_user ru ON r.id = ru.room_id WHERE ru.user_id = ? ORDER BY created_at DESC",
     ];
-    db.query(sqlQuery.join(" "), [userId], (error, results) => {
+    db.query(sqlQuery.join(" "), [userId, userId], (error, results) => {
       if (error) return reject(error);
       return resolve(results);
     });

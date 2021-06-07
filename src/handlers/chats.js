@@ -3,7 +3,10 @@ const {
   sendError,
   sendResponse,
 } = require("../helpers/response");
-const { usersFormatter } = require("../helpers/chatsFormatter");
+const {
+  usersFormatter,
+  recentChatsFormatter,
+} = require("../helpers/chatsFormatter");
 const Chat = require("../models/chats");
 const socket = require("../services/socket");
 
@@ -120,7 +123,13 @@ const getChatList = async (req, res) => {
     if (chatList.length === 0) {
       return sendResponse(res, true, 404, "Chat List not found!");
     }
-    return sendResponse(res, true, 200, "Chat List", chatList);
+    return sendResponse(
+      res,
+      true,
+      200,
+      "Chat List",
+      recentChatsFormatter(chatList)
+    );
   } catch (error) {
     console.log(error);
     return sendError(res, 500, error);
