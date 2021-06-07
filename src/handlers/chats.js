@@ -56,9 +56,10 @@ const getUsers = async (req, res) => {
 const sendMessage = async (req, res) => {
   try {
     const { content, room_id: roomId } = req.body;
-    const { user_id: userId } = req.user;
+    const { user_id: userId, name } = req.user;
 
     const message = {
+      name,
       user_id: userId,
       content,
       room_id: roomId,
