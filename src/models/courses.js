@@ -1,11 +1,32 @@
 const db = require("../database/dbMySql");
+const mysql = require("mysql");
 
-const coursesWithSort = (searchValue, sortBy, order, offset, limit) => {
+const coursesWithSort = (searchValue, sortBy, order, offset, limit, price) => {
+  let priceFilter;
+  switch (price) {
+    case "paid":
+      priceFilter = ">";
+      break;
+    case "free":
+      priceFilter = "=";
+      break;
+    default:
+      priceFilter = ">=";
+      break;
+  }
+
   return new Promise((resolve, reject) => {
     const values = [searchValue];
+
     const sqlQuery = [
-      "SELECT c.*, l.name as level, cat.name as category FROM courses c left join levels l on c.level_id = l.id left join categories cat on c.category_id = cat.id where c.name like ?",
+      "SELECT c.*, l.name as level, cat.name as category FROM courses c",
+      "left join levels l on c.level_id = l.id left join categories cat on c.category_id = cat.id",
+      "where c.name like ?",
+      "and price ? 0",
     ];
+    if (priceFilter) {
+      values.push(mysql.raw(priceFilter));
+    }
     if (sortBy && order) {
       sqlQuery.push("ORDER BY ? ?");
       values.push(sortBy, order);
@@ -17,12 +38,16 @@ const coursesWithSort = (searchValue, sortBy, order, offset, limit) => {
     db.query(sqlQuery.join(" "), values, (error, results) => {
       if (error) return reject(error);
       const countSql =
-        "SELECT count(id) as total FROM courses where name like ?";
-      db.query(countSql, [searchValue], (countErr, countResults) => {
-        if (countErr) return reject(countErr);
-        total = countResults[0].total;
-        return resolve({ data: results, total });
-      });
+        "SELECT count(id) as total FROM courses where name like ? and price ? 0";
+      db.query(
+        countSql,
+        [searchValue, mysql.raw(priceFilter)],
+        (countErr, countResults) => {
+          if (countErr) return reject(countErr);
+          total = countResults[0].total;
+          return resolve({ data: results, total });
+        }
+      );
     });
   });
 };
