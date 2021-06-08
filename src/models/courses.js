@@ -80,7 +80,7 @@ const courseByIdForRegistered = (courseId, userId) => {
       "LEFT JOIN levels l on c.level_id = l.id",
       "LEFT JOIN categories cat on c.category_id = cat.id ",
       "LEFT JOIN user_course uc on uc.course_id = c.id",
-      "where uc.user_id = 1 and c.id = 1 limit 1",
+      "where uc.user_id = ? and c.id = ? limit 1",
     ];
     db.query(findByIdQuery.join(" "), [userId, courseId], (error, results) => {
       if (error) return reject(error);
