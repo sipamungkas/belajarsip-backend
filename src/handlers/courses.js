@@ -45,6 +45,7 @@ const { sendNotification } = require("../services/socket");
 const getCoursesWithSort = async (req, res) => {
   try {
     const { baseUrl } = req;
+    const { user_id: userId } = req.user;
     const { search, sort, page, limit, price } = req.query;
     const sortValue = sort?.split("-") || null;
     let sortBy = null;
@@ -83,7 +84,8 @@ const getCoursesWithSort = async (req, res) => {
       order,
       offset,
       limitPerPage,
-      price
+      price,
+      userId
     );
 
     const totalPage = Math.ceil(courses.total / limitPerPage);

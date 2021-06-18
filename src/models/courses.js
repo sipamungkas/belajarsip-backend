@@ -1,7 +1,15 @@
 const db = require("../database/dbMySql");
 const mysql = require("mysql");
 
-const coursesWithSort = (searchValue, sortBy, order, offset, limit, price) => {
+const coursesWithSort = (
+  searchValue,
+  sortBy,
+  order,
+  offset,
+  limit,
+  price,
+  userId
+) => {
   let priceFilter;
   switch (price) {
     case "paid":
@@ -19,14 +27,17 @@ const coursesWithSort = (searchValue, sortBy, order, offset, limit, price) => {
     const values = [searchValue];
 
     const sqlQuery = [
-      "SELECT c.*, l.name as level, cat.name as category FROM courses c",
+      "SELECT DISTINCT c.*, l.name as level, cat.name as category FROM courses c",
       "left join levels l on c.level_id = l.id left join categories cat on c.category_id = cat.id",
       "where c.name like ?",
       "and price ? 0",
+      "AND c.id NOT IN ",
+      "(SELECT uc.course_id FROM user_course uc WHERE uc.user_id = ?)",
     ];
     if (priceFilter) {
       values.push(mysql.raw(priceFilter));
     }
+    values.push(userId);
     if (sortBy && order) {
       sqlQuery.push("ORDER BY ? ?");
       values.push(sortBy, order);
