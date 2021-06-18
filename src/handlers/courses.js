@@ -455,6 +455,9 @@ const getMyClassWithLimitAndSort = async (req, res) => {
         case "price":
           sortBy = mysql.raw("c.price");
           break;
+        case "registered":
+          sortBy = mysql.raw("uc.registered_at");
+          break;
         default:
           sortBy = null;
           break;
